@@ -1,0 +1,182 @@
+{
+  "slug": "season-7-hd-lr3ms4jib69",
+  "count": 764,
+  "buckets": [
+    {
+      "sex": "__unknown__",
+      "count": 349,
+      "splits": [],
+      "age_group": "30-34",
+      "low_sample": false,
+      "total_time": {
+        "count": 349,
+        "avg_ms": 4801020,
+        "max_ms": 7142000,
+        "min_ms": 3128000,
+        "p10_ms": 4023400,
+        "p25_ms": 4329000,
+        "p50_ms": 4717000,
+        "p75_ms": 5235000,
+        "p90_ms": 5655200,
+        "median_ms": 4717000,
+        "stddev_ms": 668903
+      },
+      "division_key": "__unknown__"
+    },
+    {
+      "sex": "__unknown__",
+      "count": 75,
+      "splits": [],
+      "age_group": "XU29",
+      "low_sample": false,
+      "total_time": {
+        "count": 75,
+        "avg_ms": 4992053,
+        "max_ms": 8010000,
+        "min_ms": 3820000,
+        "p10_ms": 4164200,
+        "p25_ms": 4487500,
+        "p50_ms": 4863000,
+        "p75_ms": 5351000,
+        "p90_ms": 5939600,
+        "median_ms": 4863000,
+        "stddev_ms": 753406
+      },
+      "division_key": "__unknown__"
+    },
+    {
+      "sex": "__unknown__",
+      "count": 140,
+      "splits": [],
+      "age_group": "40-44",
+      "low_sample": false,
+      "total_time": {
+        "count": 140,
+        "avg_ms": 4990936,
+        "max_ms": 8423000,
+        "min_ms": 3865000,
+        "p10_ms": 4207900,
+        "p25_ms": 4531000,
+        "p50_ms": 4923000,
+        "p75_ms": 5307250,
+        "p90_ms": 5766000,
+        "median_ms": 4923000,
+        "stddev_ms": 705953
+      },
+      "division_key": "__unknown__"
+    },
+    {
+      "sex": "__unknown__",
+      "count": 91,
+      "splits": [],
+      "age_group": "MU29",
+      "low_sample": false,
+      "total_time": {
+        "count": 91,
+        "avg_ms": 4568396,
+        "max_ms": 6875000,
+        "min_ms": 3429000,
+        "p10_ms": 3703000,
+        "p25_ms": 4179000,
+        "p50_ms": 4528000,
+        "p75_ms": 4943500,
+        "p90_ms": 5253000,
+        "median_ms": 4528000,
+        "stddev_ms": 627821
+      },
+      "division_key": "__unknown__"
+    },
+    {
+      "sex": "__unknown__",
+      "count": 38,
+      "splits": [],
+      "age_group": "50-54",
+      "low_sample": false,
+      "total_time": {
+        "count": 38,
+        "avg_ms": 5246737,
+        "max_ms": 7035000,
+        "min_ms": 4256000,
+        "p10_ms": 4602500,
+        "p25_ms": 4779000,
+        "p50_ms": 5081000,
+        "p75_ms": 5548250,
+        "p90_ms": 6145100,
+        "median_ms": 5081000,
+        "stddev_ms": 649440
+      },
+      "division_key": "__unknown__"
+    },
+    {
+      "sex": "__unknown__",
+      "count": 70,
+      "splits": [],
+      "age_group": "WU29",
+      "low_sample": false,
+      "total_time": {
+        "count": 70,
+        "avg_ms": 5080643,
+        "max_ms": 6905000,
+        "min_ms": 3751000,
+        "p10_ms": 4413700,
+        "p25_ms": 4647750,
+        "p50_ms": 4959500,
+        "p75_ms": 5511750,
+        "p90_ms": 5832800,
+        "median_ms": 4959500,
+        "stddev_ms": 608436
+      },
+      "division_key": "__unknown__"
+    },
+    {
+      "sex": "__unknown__",
+      "count": 1,
+      "splits": [],
+      "age_group": "60-64",
+      "low_sample": true,
+      "total_time": {
+        "count": 1,
+        "avg_ms": 5578000,
+        "max_ms": 5578000,
+        "min_ms": 5578000,
+        "p10_ms": 5578000,
+        "p25_ms": 5578000,
+        "p50_ms": 5578000,
+        "p75_ms": 5578000,
+        "p90_ms": 5578000,
+        "median_ms": 5578000,
+        "stddev_ms": 0
+      },
+      "division_key": "__unknown__"
+    }
+  ],
+  "event_id": 2415,
+  "divisions": [
+    {
+      "count": 764,
+      "low_sample": false,
+      "division_key": "__unknown__",
+      "split_averages": [],
+      "avg_total_time_ms": 4875673,
+      "max_total_time_ms": 8423000,
+      "min_total_time_ms": 3128000,
+      "p10_total_time_ms": 4063900,
+      "p25_total_time_ms": 4387000,
+      "p75_total_time_ms": 5273000,
+      "p90_total_time_ms": 5748200,
+      "median_total_time_ms": 4812500,
+      "stddev_total_time_ms": 694392
+    }
+  ],
+  "avg_total_time_ms": 4875673,
+  "max_total_time_ms": 8423000,
+  "min_total_time_ms": 3128000,
+  "p10_total_time_ms": 4063900,
+  "p25_total_time_ms": 4387000,
+  "p75_total_time_ms": 5273000,
+  "p90_total_time_ms": 5748200,
+  "bucket_unknown_label": "__unknown__",
+  "median_total_time_ms": 4812500,
+  "stddev_total_time_ms": 694392,
+  "division_unknown_label": "__unknown__"
+}

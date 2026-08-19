@@ -1,0 +1,140 @@
+{
+  "slug": "season-7-hdp-lr3ms4jib69",
+  "count": 148,
+  "buckets": [
+    {
+      "sex": "__unknown__",
+      "count": 64,
+      "splits": [],
+      "age_group": "30-34",
+      "low_sample": false,
+      "total_time": {
+        "count": 64,
+        "avg_ms": 4533844,
+        "max_ms": 6173000,
+        "min_ms": 3519000,
+        "p10_ms": 3933700,
+        "p25_ms": 4097500,
+        "p50_ms": 4485000,
+        "p75_ms": 4799750,
+        "p90_ms": 5260200,
+        "median_ms": 4485000,
+        "stddev_ms": 540908
+      },
+      "division_key": "__unknown__"
+    },
+    {
+      "sex": "__unknown__",
+      "count": 21,
+      "splits": [],
+      "age_group": "WU29",
+      "low_sample": true,
+      "total_time": {
+        "count": 21,
+        "avg_ms": 5008667,
+        "max_ms": 6396000,
+        "min_ms": 3971000,
+        "p10_ms": 4295000,
+        "p25_ms": 4683000,
+        "p50_ms": 5022000,
+        "p75_ms": 5297000,
+        "p90_ms": 5830000,
+        "median_ms": 5022000,
+        "stddev_ms": 606617
+      },
+      "division_key": "__unknown__"
+    },
+    {
+      "sex": "__unknown__",
+      "count": 36,
+      "splits": [],
+      "age_group": "MU29",
+      "low_sample": false,
+      "total_time": {
+        "count": 36,
+        "avg_ms": 4498333,
+        "max_ms": 6309000,
+        "min_ms": 3442000,
+        "p10_ms": 3674000,
+        "p25_ms": 4026500,
+        "p50_ms": 4294000,
+        "p75_ms": 4821750,
+        "p90_ms": 5600500,
+        "median_ms": 4294000,
+        "stddev_ms": 719901
+      },
+      "division_key": "__unknown__"
+    },
+    {
+      "sex": "__unknown__",
+      "count": 25,
+      "splits": [],
+      "age_group": "40-44",
+      "low_sample": true,
+      "total_time": {
+        "count": 25,
+        "avg_ms": 4602320,
+        "max_ms": 5791000,
+        "min_ms": 3686000,
+        "p10_ms": 3854800,
+        "p25_ms": 4199000,
+        "p50_ms": 4560000,
+        "p75_ms": 4938000,
+        "p90_ms": 5442400,
+        "median_ms": 4560000,
+        "stddev_ms": 580667
+      },
+      "division_key": "__unknown__"
+    },
+    {
+      "sex": "__unknown__",
+      "count": 2,
+      "splits": [],
+      "age_group": "50-54",
+      "low_sample": true,
+      "total_time": {
+        "count": 2,
+        "avg_ms": 4430000,
+        "max_ms": 4482000,
+        "min_ms": 4378000,
+        "p10_ms": 4388400,
+        "p25_ms": 4404000,
+        "p50_ms": 4430000,
+        "p75_ms": 4456000,
+        "p90_ms": 4471600,
+        "median_ms": 4430000,
+        "stddev_ms": 52000
+      },
+      "division_key": "__unknown__"
+    }
+  ],
+  "event_id": 2413,
+  "divisions": [
+    {
+      "count": 148,
+      "low_sample": false,
+      "division_key": "__unknown__",
+      "split_averages": [],
+      "avg_total_time_ms": 4602743,
+      "max_total_time_ms": 6396000,
+      "min_total_time_ms": 3442000,
+      "p10_total_time_ms": 3924400,
+      "p25_total_time_ms": 4101000,
+      "p75_total_time_ms": 4942750,
+      "p90_total_time_ms": 5421000,
+      "median_total_time_ms": 4547000,
+      "stddev_total_time_ms": 624722
+    }
+  ],
+  "avg_total_time_ms": 4602743,
+  "max_total_time_ms": 6396000,
+  "min_total_time_ms": 3442000,
+  "p10_total_time_ms": 3924400,
+  "p25_total_time_ms": 4101000,
+  "p75_total_time_ms": 4942750,
+  "p90_total_time_ms": 5421000,
+  "bucket_unknown_label": "__unknown__",
+  "median_total_time_ms": 4547000,
+  "stddev_total_time_ms": 624722,
+  "division_unknown_label": "__unknown__"
+}
