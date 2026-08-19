@@ -40,7 +40,8 @@ ITALIAN_CITIES = ["rimini", "milan", "roma", "rome", "napol", "torin", "firenz",
 SEASONS_TO_SCAN = int(os.getenv("SEASONS_TO_SCAN", "3"))
 
 # Rate-limit: pausa tra richieste (secondi) per restare sotto 30 req/min
-REQUEST_DELAY = 2.1
+# Piano Starter = 30 req/min → 1 ogni 2s, usiamo 3s per sicurezza
+REQUEST_DELAY = 3.0
 
 
 # ---------------------------------------------------------------------------
