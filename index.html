@@ -72,6 +72,29 @@
 
     .loading-msg { text-align: center; padding: 2rem; color: var(--text2); }
 
+    .content-type-btns { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .content-type-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 1.2rem; color: var(--text2); cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+    .content-type-btn:hover { border-color: var(--accent); color: var(--text); }
+    .content-type-btn.active { background: var(--accent); color: var(--bg); font-weight: 600; border-color: var(--accent); }
+
+    .content-output { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-top: 1rem; white-space: pre-wrap; font-size: 0.9rem; line-height: 1.7; position: relative; min-height: 80px; }
+    .content-output:empty::before { content: 'Seleziona un evento e clicca Genera'; color: var(--text2); }
+
+    .btn-copy { position: absolute; top: 0.8rem; right: 0.8rem; background: var(--accent); color: var(--bg); border: none; border-radius: 6px; padding: 0.4rem 1rem; cursor: pointer; font-weight: 600; font-size: 0.8rem; }
+    .btn-copy:hover { background: var(--accent2); }
+    .btn-generate { background: var(--accent); color: var(--bg); border: none; border-radius: 8px; padding: 0.6rem 1.5rem; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+    .btn-generate:hover { background: var(--accent2); }
+
+    .athlete-results { margin-top: 1rem; }
+    .athlete-race-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; margin-bottom: 0.8rem; }
+    .athlete-race-card h4 { color: var(--accent); margin-bottom: 0.5rem; }
+    .athlete-splits { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.3rem; margin-top: 0.5rem; }
+    .athlete-split { font-size: 0.8rem; }
+    .athlete-split .sl { color: var(--text2); }
+    .athlete-split .sv { font-family: 'SF Mono', monospace; }
+    .athlete-best { color: var(--green); font-weight: 600; }
+    .athlete-worst { color: #ff6b6b; font-weight: 600; }
+
     @media (max-width: 768px) {
       .header { padding: 1rem; }
       .container { padding: 1rem; }
@@ -93,6 +116,7 @@
     <div class="tab active" data-section="events">Eventi</div>
     <div class="tab" data-section="results">Classifiche</div>
     <div class="tab" data-section="stats">Statistiche</div>
+    <div class="tab" data-section="content">Contenuti IG</div>
   </div>
 
   <div class="section active" id="sec-events">
@@ -115,6 +139,17 @@
   <div class="section" id="sec-stats">
     <div class="filters" id="stats-filters"></div>
     <div class="stats-grid" id="stats-grid"></div>
+  </div>
+
+  <div class="section" id="sec-content">
+    <div class="content-type-btns" id="content-type-btns">
+      <div class="content-type-btn active" data-type="top10">Top 10</div>
+      <div class="content-type-btn" data-type="report">Report Evento</div>
+      <div class="content-type-btn" data-type="athlete">Profilo Atleta</div>
+    </div>
+
+    <div class="filters" id="content-filters"></div>
+    <div id="content-area"></div>
   </div>
 </div>
 
@@ -364,6 +399,313 @@ function renderStats() {
   `).join('');
 }
 
+// -- Content IG --
+let contentType = 'top10';
+let contentRaceData = null;
+let contentEventKey = '';
+
+document.getElementById('content-type-btns').addEventListener('click', e => {
+  const btn = e.target.closest('.content-type-btn');
+  if (!btn) return;
+  document.querySelectorAll('.content-type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  contentType = btn.dataset.type;
+  renderContentFilters();
+});
+
+function renderContentFilters() {
+  const events = DATA.events.sort((a, b) => a.name.localeCompare(b.name));
+  const area = document.getElementById('content-area');
+  area.innerHTML = '';
+
+  if (contentType === 'athlete') {
+    document.getElementById('content-filters').innerHTML = `
+      <label>Cerca atleta</label>
+      <input type="text" id="content-athlete-search" placeholder="Nome atleta..." style="min-width:250px">
+      <button class="btn-generate" onclick="searchAthlete()">Cerca in tutte le gare</button>
+    `;
+    return;
+  }
+
+  document.getElementById('content-filters').innerHTML = `
+    <label>Evento</label>
+    <select id="content-event-select" style="min-width:250px">
+      <option value="">— Seleziona —</option>
+      ${events.map(e => `<option value="${e.key}">${e.name} (${e.location} ${e.year})</option>`).join('')}
+    </select>
+    <label>Divisione</label>
+    <select id="content-division"><option value="">Tutte</option></select>
+    <label>Genere</label>
+    <select id="content-gender"><option value="">Tutti</option></select>
+    <button class="btn-generate" onclick="generateContent()">Genera</button>
+  `;
+}
+
+async function loadContentRace(key) {
+  if (raceCache[key]) return raceCache[key];
+  const resp = await fetch(`data/races/${key}.json`);
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  const data = await resp.json();
+  raceCache[key] = data;
+  return data;
+}
+
+async function generateContent() {
+  const key = document.getElementById('content-event-select').value;
+  if (!key) return;
+  const area = document.getElementById('content-area');
+  area.innerHTML = '<div class="loading-msg">Caricamento...</div>';
+
+  try {
+    const results = await loadContentRace(key);
+    contentRaceData = results;
+    contentEventKey = key;
+
+    // Update division/gender dropdowns
+    const divSel = document.getElementById('content-division');
+    const genSel = document.getElementById('content-gender');
+    const divs = [...new Set(results.map(r => r.division).filter(Boolean))].sort();
+    const gens = [...new Set(results.map(r => r.gender).filter(Boolean))].sort();
+    divSel.innerHTML = '<option value="">Tutte</option>' + divs.map(d => `<option value="${d}">${d}</option>`).join('');
+    genSel.innerHTML = '<option value="">Tutti</option>' + gens.map(g => `<option value="${g}">${g}</option>`).join('');
+
+    if (contentType === 'top10') generateTop10(key, results);
+    else if (contentType === 'report') generateReport(key, results);
+  } catch (err) {
+    area.innerHTML = `<div class="loading-msg">Errore: ${err.message}</div>`;
+  }
+}
+
+function getFilteredContent(results) {
+  const div = document.getElementById('content-division')?.value || '';
+  const gen = document.getElementById('content-gender')?.value || '';
+  let filtered = results;
+  if (div) filtered = filtered.filter(r => r.division === div);
+  if (gen) filtered = filtered.filter(r => r.gender === gen);
+  return filtered.filter(r => r.total_time).sort((a, b) => a.total_time - b.total_time);
+}
+
+function formatName(name) {
+  if (!name) return '???';
+  return name.split(', ').reverse().join(' ');
+}
+
+function generateTop10(key, results) {
+  const event = DATA.events.find(e => e.key === key);
+  const filtered = getFilteredContent(results);
+  const top = filtered.slice(0, 10);
+  const div = document.getElementById('content-division')?.value || '';
+  const gen = document.getElementById('content-gender')?.value || '';
+
+  const title = `TOP 10 — ${event.location.toUpperCase()} ${event.year}`;
+  const subtitle = [div, gen].filter(Boolean).join(' | ') || 'Open';
+
+  let text = `${title}\n${subtitle}\n${'─'.repeat(40)}\n\n`;
+  top.forEach((r, i) => {
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
+    const flag = r.nationality ? ` (${r.nationality})` : '';
+    text += `${medal} ${formatName(r.name)}${flag}\n`;
+    text += `   Tempo: ${minsToTime(r.total_time)}\n`;
+
+    // Find best and worst split
+    const splits = [
+      { name: 'SkiErg', val: r.skiErg },
+      { name: 'Sled Push', val: r.sledPush },
+      { name: 'Sled Pull', val: r.sledPull },
+      { name: 'Burpee BJ', val: r.burpee },
+      { name: 'Row', val: r.row },
+      { name: 'Farmers', val: r.farmersCarry },
+      { name: 'Lunges', val: r.lunges },
+      { name: 'Wall Balls', val: r.wallBalls },
+    ].filter(s => s.val);
+
+    if (splits.length) {
+      const best = splits.reduce((a, b) => a.val < b.val ? a : b);
+      text += `   Best split: ${best.name} ${minsToTime(best.val)}\n`;
+    }
+    text += '\n';
+  });
+
+  text += `\n${filtered.length.toLocaleString()} partecipanti totali`;
+
+  const area = document.getElementById('content-area');
+  area.innerHTML = `<div class="content-output"><button class="btn-copy" onclick="copyContent()">Copia</button>${escHtml(text)}</div>`;
+}
+
+function generateReport(key, results) {
+  const event = DATA.events.find(e => e.key === key);
+  const filtered = getFilteredContent(results);
+  if (!filtered.length) {
+    document.getElementById('content-area').innerHTML = '<div class="loading-msg">Nessun risultato con i filtri selezionati</div>';
+    return;
+  }
+
+  const n = filtered.length;
+  const times = filtered.map(r => r.total_time);
+  const avg = times.reduce((a, b) => a + b, 0) / n;
+  const median = times[Math.floor(n / 2)];
+  const p10 = n >= 10 ? times[Math.floor(n * 0.1)] : null;
+  const p90 = n >= 10 ? times[Math.floor(n * 0.9)] : null;
+
+  // Average splits
+  const splitNames = ['skiErg','sledPush','sledPull','burpee','row','farmersCarry','lunges','wallBalls'];
+  const splitLabels = { skiErg:'SkiErg', sledPush:'Sled Push', sledPull:'Sled Pull', burpee:'Burpee BJ', row:'Row', farmersCarry:'Farmers Carry', lunges:'Lunges', wallBalls:'Wall Balls' };
+  const avgSplits = splitNames.map(s => {
+    const vals = filtered.map(r => r[s]).filter(v => v && !isNaN(v));
+    return { name: splitLabels[s], avg: vals.length ? vals.reduce((a,b) => a+b,0) / vals.length : null };
+  }).filter(s => s.avg);
+
+  const slowest = avgSplits.length ? avgSplits.reduce((a, b) => a.avg > b.avg ? a : b) : null;
+  const fastest = avgSplits.length ? avgSplits.reduce((a, b) => a.avg < b.avg ? a : b) : null;
+
+  // Nationality breakdown
+  const natCounts = {};
+  filtered.forEach(r => { if (r.nationality) natCounts[r.nationality] = (natCounts[r.nationality]||0) + 1; });
+  const topNats = Object.entries(natCounts).sort((a,b) => b[1]-a[1]).slice(0, 5);
+
+  const div = document.getElementById('content-division')?.value || '';
+  const gen = document.getElementById('content-gender')?.value || '';
+  const title = `REPORT — ${event.location.toUpperCase()} ${event.year}`;
+  const subtitle = [div, gen].filter(Boolean).join(' | ') || 'Tutte le divisioni';
+
+  let text = `${title}\n${subtitle}\n${'─'.repeat(40)}\n\n`;
+  text += `Partecipanti: ${n.toLocaleString()}\n\n`;
+  text += `Miglior tempo:  ${minsToTime(times[0])} (${formatName(filtered[0].name)})\n`;
+  text += `Tempo medio:    ${minsToTime(avg)}\n`;
+  text += `Mediana:        ${minsToTime(median)}\n`;
+  text += `Peggior tempo:  ${minsToTime(times[n-1])}\n`;
+  if (p10) text += `Top 10%:        sotto ${minsToTime(p10)}\n`;
+  if (p90) text += `Top 90%:        sotto ${minsToTime(p90)}\n`;
+
+  if (avgSplits.length) {
+    text += `\nTEMPI MEDI PER STAZIONE\n${'─'.repeat(30)}\n`;
+    avgSplits.sort((a,b) => b.avg - a.avg).forEach(s => {
+      const marker = s === slowest ? ' ← PIU LENTA' : s === fastest ? ' ← PIU VELOCE' : '';
+      text += `${s.name.padEnd(14)} ${minsToTime(s.avg)}${marker}\n`;
+    });
+  }
+
+  if (topNats.length) {
+    text += `\nNAZIONALITA TOP 5\n${'─'.repeat(30)}\n`;
+    topNats.forEach(([nat, cnt]) => {
+      text += `${nat.padEnd(6)} ${cnt} atleti (${Math.round(cnt/n*100)}%)\n`;
+    });
+  }
+
+  const area = document.getElementById('content-area');
+  area.innerHTML = `<div class="content-output"><button class="btn-copy" onclick="copyContent()">Copia</button>${escHtml(text)}</div>`;
+}
+
+async function searchAthlete() {
+  const search = (document.getElementById('content-athlete-search')?.value || '').toLowerCase().trim();
+  if (search.length < 3) {
+    document.getElementById('content-area').innerHTML = '<div class="loading-msg">Inserisci almeno 3 caratteri</div>';
+    return;
+  }
+
+  const area = document.getElementById('content-area');
+  area.innerHTML = '<div class="loading-msg">Cerco in tutte le gare...</div>';
+
+  const found = [];
+  for (const event of DATA.events) {
+    let results;
+    try {
+      results = await loadContentRace(event.key);
+    } catch { continue; }
+
+    const matches = results.filter(r => (r.name || '').toLowerCase().includes(search));
+    if (matches.length) {
+      matches.forEach(m => found.push({ ...m, event }));
+    }
+  }
+
+  if (!found.length) {
+    area.innerHTML = '<div class="loading-msg">Atleta non trovato in nessuna gara</div>';
+    return;
+  }
+
+  // Group by athlete name (exact match)
+  const byName = {};
+  found.forEach(r => {
+    const key = r.name || '???';
+    if (!byName[key]) byName[key] = [];
+    byName[key].push(r);
+  });
+
+  let html = '';
+  for (const [name, races] of Object.entries(byName)) {
+    const sorted = races.sort((a, b) => (a.total_time || 9999) - (b.total_time || 9999));
+    const best = sorted.find(r => r.total_time);
+
+    html += `<div style="margin-bottom:1.5rem">`;
+    html += `<h3 style="color:var(--accent);margin-bottom:0.3rem">${formatName(name)}</h3>`;
+    html += `<div style="color:var(--text2);font-size:0.85rem;margin-bottom:0.8rem">${races.length} gara/e trovata/e${best ? ` — Miglior tempo: ${minsToTime(best.total_time)}` : ''}</div>`;
+
+    // Copyable text
+    let text = `PROFILO ATLETA — ${formatName(name)}\n${'─'.repeat(40)}\n\n`;
+    text += `Gare disputate: ${races.length}\n`;
+    if (best) text += `Miglior tempo: ${minsToTime(best.total_time)}\n`;
+    if (best?.nationality) text += `Nazionalita: ${best.nationality}\n`;
+    text += '\n';
+
+    races.forEach(r => {
+      const ev = r.event;
+      html += `<div class="athlete-race-card">`;
+      html += `<h4>${ev.location.toUpperCase()} ${ev.year} — Season ${ev.season}</h4>`;
+      html += `<div>${r.division || ''} | ${r.gender || ''} | ${r.age_group || ''}</div>`;
+      html += `<div style="font-size:1.1rem;font-weight:700;margin:0.3rem 0">Tempo: ${minsToTime(r.total_time)}</div>`;
+
+      text += `${ev.location.toUpperCase()} ${ev.year} (Season ${ev.season})\n`;
+      text += `  Divisione: ${r.division || '—'} | ${r.gender || '—'}\n`;
+      text += `  Tempo: ${minsToTime(r.total_time)}\n`;
+
+      const splits = [
+        { name: 'SkiErg', val: r.skiErg },
+        { name: 'Sled Push', val: r.sledPush },
+        { name: 'Sled Pull', val: r.sledPull },
+        { name: 'Burpee BJ', val: r.burpee },
+        { name: 'Row', val: r.row },
+        { name: 'Farmers', val: r.farmersCarry },
+        { name: 'Lunges', val: r.lunges },
+        { name: 'Wall Balls', val: r.wallBalls },
+      ].filter(s => s.val);
+
+      if (splits.length) {
+        const best = splits.reduce((a, b) => a.val < b.val ? a : b);
+        const worst = splits.reduce((a, b) => a.val > b.val ? a : b);
+        html += '<div class="athlete-splits">';
+        splits.forEach(s => {
+          const cls = s === best ? 'athlete-best' : s === worst ? 'athlete-worst' : '';
+          html += `<div class="athlete-split"><span class="sl">${s.name}</span> <span class="sv ${cls}">${minsToTime(s.val)}</span></div>`;
+        });
+        html += '</div>';
+        text += `  Splits: ${splits.map(s => `${s.name} ${minsToTime(s.val)}`).join(' | ')}\n`;
+        text += `  Punto forte: ${best.name} (${minsToTime(best.val)}) | Punto debole: ${worst.name} (${minsToTime(worst.val)})\n`;
+      }
+      html += '</div>';
+      text += '\n';
+    });
+
+    html += `<button class="btn-copy" style="position:static;margin-top:0.5rem" onclick="navigator.clipboard.writeText(this.dataset.text).then(()=>{this.textContent='Copiato!';setTimeout(()=>this.textContent='Copia profilo',1500)})" data-text="${escAttr(text)}">Copia profilo</button>`;
+    html += '</div>';
+  }
+
+  area.innerHTML = html;
+}
+
+function copyContent() {
+  const output = document.querySelector('.content-output');
+  if (!output) return;
+  const text = output.textContent.replace('Copia', '').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = output.querySelector('.btn-copy');
+    if (btn) { btn.textContent = 'Copiato!'; setTimeout(() => btn.textContent = 'Copia', 1500); }
+  });
+}
+
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escAttr(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
 // -- Tabs --
 document.getElementById('tabs').addEventListener('click', e => {
   const tab = e.target.closest('.tab');
@@ -389,6 +731,7 @@ async function init() {
   renderEvents();
   renderResultsFilters();
   renderStatsFilters();
+  renderContentFilters();
 }
 init();
 </script>
