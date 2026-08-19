@@ -52,9 +52,11 @@ def api_get(path: str, params: dict | None = None) -> dict:
     url = f"{API_BASE}{path}"
     time.sleep(REQUEST_DELAY)
     resp = requests.get(url, headers=HEADERS, params=params, timeout=30)
-    if resp.status_code == 429:
+    for attempt in range(3):
+        if resp.status_code != 429:
+            break
         retry_after = int(resp.headers.get("Retry-After", 60))
-        print(f"  ⏳ Rate-limited, attendo {retry_after}s...")
+        print(f"  ⏳ Rate-limited, attendo {retry_after}s (tentativo {attempt + 1}/3)...")
         time.sleep(retry_after)
         resp = requests.get(url, headers=HEADERS, params=params, timeout=30)
     resp.raise_for_status()
@@ -141,7 +143,7 @@ def fetch_divisions(event_slug: str) -> list[dict]:
     return data.get("data", [])
 
 
-def fetch_results(division_id: int, max_pages: int = 50) -> list[dict]:
+def fetch_results(division_id: int, max_pages: int = 100) -> list[dict]:
     """Scarica risultati paginati di una divisione (cursor pagination)."""
     all_results = []
     cursor = None
@@ -322,6 +324,27 @@ def sync():
     if top_splits:
         save_json(top_splits, f"splits_top10_{timestamp}.json")
         print(f"  {len(top_splits)} split scaricati per {len(seen_names)} atleti")
+
+    # 5. Genera dashboard.json consolidato per la dashboard web
+    print("\n📊 Genero dashboard.json...")
+    # Raccogli stats per divisione
+    all_stats = {}
+    for event in events:
+        slug = event.get("slug", "")
+        for fname in (DATA_DIR / "stats").glob(f"{slug}_*_{timestamp}.json"):
+            with open(fname, encoding="utf-8") as f:
+                stat = json.load(f)
+                div_id = fname.stem.split("_")[1]  # slug_divid_timestamp
+                all_stats[f"{slug}_{div_id}"] = stat
+
+    dashboard = {
+        "last_sync": timestamp,
+        "events": events,
+        "results": all_results_flat,
+        "stats": all_stats,
+        "splits": top_splits,
+    }
+    save_json(dashboard, "dashboard.json")
 
     print(f"\n✅ Sync completato! Dati salvati in {DATA_DIR}/")
     print(f"   Timestamp: {timestamp}")
