@@ -24,7 +24,6 @@ jobs:
 
       - name: Run sync
         env:
-          HYROX_API_TOKEN: ${{ secrets.HYROX_API_TOKEN }}
           PYTHONIOENCODING: utf-8
         run: python sync.py
 

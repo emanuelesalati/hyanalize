@@ -1,2 +1,1 @@
-requests>=2.31
-python-dotenv>=1.0
+pyrox-client>=0.2.7

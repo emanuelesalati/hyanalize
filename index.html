@@ -3,322 +3,79 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HYANALIZE — Hyrox Italia Dashboard</title>
+  <title>HYANALIZE — Hyrox Dashboard</title>
   <style>
     :root {
-      --bg: #0f1117;
-      --surface: #1a1d27;
-      --surface2: #232736;
-      --border: #2e3347;
-      --text: #e4e6ed;
-      --text2: #8b8fa3;
-      --accent: #c8ff00;
-      --accent2: #a3cc00;
-      --gold: #ffd700;
-      --silver: #c0c0c0;
-      --bronze: #cd7f32;
-      --red: #ff4d6a;
-      --green: #00d68f;
+      --bg: #0f1117; --surface: #1a1d27; --surface2: #232736; --border: #2e3347;
+      --text: #e4e6ed; --text2: #8b8fa3; --accent: #c8ff00; --accent2: #a3cc00;
+      --gold: #ffd700; --silver: #c0c0c0; --bronze: #cd7f32; --green: #00d68f;
     }
-
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.5;
-    }
-
-    /* Header */
-    .header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 1.2rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .header h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-    }
-
+    .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1.2rem 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+    .header h1 { font-size: 1.5rem; font-weight: 700; }
     .header h1 span { color: var(--accent); }
+    .header .meta { color: var(--text2); font-size: 0.85rem; }
 
-    .header .meta {
-      color: var(--text2);
-      font-size: 0.85rem;
-    }
+    .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
 
-    /* Layout */
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 1.5rem;
-    }
-
-    /* KPI cards */
-    .kpi-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    .kpi {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.2rem;
-    }
-
+    .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; }
     .kpi .label { color: var(--text2); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
-    .kpi .value { font-size: 2rem; font-weight: 700; color: var(--accent); margin-top: 0.3rem; }
+    .kpi .value { font-size: 1.8rem; font-weight: 700; color: var(--accent); margin-top: 0.3rem; }
     .kpi .sub { color: var(--text2); font-size: 0.85rem; margin-top: 0.2rem; }
 
-    /* Tabs */
-    .tabs {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-    }
-
-    .tab {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.6rem 1.2rem;
-      color: var(--text2);
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: all 0.2s;
-    }
-
+    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .tab { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 1.2rem; color: var(--text2); cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
     .tab:hover { border-color: var(--accent); color: var(--text); }
     .tab.active { background: var(--accent); color: var(--bg); font-weight: 600; border-color: var(--accent); }
 
-    /* Section */
     .section { display: none; }
     .section.active { display: block; }
 
-    .section-title {
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid var(--border);
-    }
+    .filters { display: flex; gap: 0.8rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
+    .filters select, .filters input { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.8rem; color: var(--text); font-size: 0.85rem; min-width: 140px; }
+    .filters select:focus, .filters input:focus { outline: none; border-color: var(--accent); }
+    .filters label { color: var(--text2); font-size: 0.8rem; }
 
-    /* Filter bar */
-    .filters {
-      display: flex;
-      gap: 0.8rem;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .filters select, .filters input {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.5rem 0.8rem;
-      color: var(--text);
-      font-size: 0.85rem;
-    }
-
-    .filters select:focus, .filters input:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-
-    .filters label {
-      color: var(--text2);
-      font-size: 0.8rem;
-    }
-
-    /* Table */
-    .table-wrap {
-      overflow-x: auto;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.85rem;
-    }
-
-    th {
-      background: var(--surface2);
-      color: var(--text2);
-      font-weight: 600;
-      text-transform: uppercase;
-      font-size: 0.75rem;
-      letter-spacing: 0.5px;
-      padding: 0.8rem 1rem;
-      text-align: left;
-      position: sticky;
-      top: 0;
-      cursor: pointer;
-      user-select: none;
-    }
-
+    .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); max-height: 70vh; overflow-y: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th { background: var(--surface2); color: var(--text2); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; padding: 0.8rem 0.8rem; text-align: left; position: sticky; top: 0; cursor: pointer; user-select: none; z-index: 1; }
     th:hover { color: var(--accent); }
     th.sorted-asc::after { content: ' ▲'; color: var(--accent); }
     th.sorted-desc::after { content: ' ▼'; color: var(--accent); }
-
-    td {
-      padding: 0.7rem 1rem;
-      border-top: 1px solid var(--border);
-    }
-
+    td { padding: 0.6rem 0.8rem; border-top: 1px solid var(--border); }
     tr:hover td { background: var(--surface2); }
-
     .rank-1 { color: var(--gold); font-weight: 700; }
     .rank-2 { color: var(--silver); font-weight: 700; }
     .rank-3 { color: var(--bronze); font-weight: 700; }
-
     .time { font-variant-numeric: tabular-nums; font-family: 'SF Mono', 'Cascadia Code', monospace; }
 
-    /* Stats cards */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
+    .event-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+    .event-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; cursor: pointer; transition: all 0.2s; }
+    .event-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .event-card h3 { font-size: 1rem; margin-bottom: 0.2rem; }
+    .event-card .city { color: var(--accent); font-size: 0.9rem; }
+    .event-card .info { color: var(--text2); font-size: 0.85rem; margin-top: 0.4rem; }
 
-    .stat-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.2rem;
-    }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; }
+    .stat-card h3 { font-size: 0.95rem; margin-bottom: 0.8rem; color: var(--accent); }
+    .stat-row { display: flex; justify-content: space-between; padding: 0.3rem 0; font-size: 0.85rem; }
+    .stat-row .sl { color: var(--text2); }
 
-    .stat-card h3 {
-      font-size: 0.95rem;
-      margin-bottom: 0.8rem;
-      color: var(--accent);
-    }
-
-    .stat-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 0.3rem 0;
-      font-size: 0.85rem;
-    }
-
-    .stat-row .stat-label { color: var(--text2); }
-    .stat-row .stat-value { font-family: monospace; }
-
-    /* Percentile bar */
-    .pct-bar-wrap {
-      background: var(--surface2);
-      border-radius: 4px;
-      height: 8px;
-      margin-top: 0.3rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .pct-bar {
-      height: 100%;
-      border-radius: 4px;
-      background: linear-gradient(90deg, var(--green), var(--accent), var(--red));
-    }
-
-    .pct-marker {
-      position: absolute;
-      top: -2px;
-      width: 3px;
-      height: 12px;
-      background: white;
-      border-radius: 2px;
-      transform: translateX(-50%);
-    }
-
-    /* Event cards */
-    .event-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1rem;
-    }
-
-    .event-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.2rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .event-card:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-    }
-
-    .event-card h3 { font-size: 1rem; margin-bottom: 0.3rem; }
-    .event-card .event-city { color: var(--accent); font-size: 0.9rem; }
-    .event-card .event-date { color: var(--text2); font-size: 0.85rem; }
-    .event-card .event-count { color: var(--text2); font-size: 0.85rem; margin-top: 0.5rem; }
-
-    /* Pagination */
-    .pagination {
-      display: flex;
-      gap: 0.5rem;
-      justify-content: center;
-      align-items: center;
-      margin-top: 1rem;
-      color: var(--text2);
-      font-size: 0.85rem;
-    }
-
-    .pagination button {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0.4rem 0.8rem;
-      color: var(--text);
-      cursor: pointer;
-      font-size: 0.85rem;
-    }
-
+    .pagination { display: flex; gap: 0.5rem; justify-content: center; align-items: center; margin-top: 1rem; color: var(--text2); font-size: 0.85rem; }
+    .pagination button { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem 0.8rem; color: var(--text); cursor: pointer; }
     .pagination button:hover { border-color: var(--accent); }
     .pagination button:disabled { opacity: 0.3; cursor: default; }
 
-    /* Loading */
-    .loading {
-      text-align: center;
-      padding: 4rem;
-      color: var(--text2);
-      font-size: 1.1rem;
-    }
+    .loading-msg { text-align: center; padding: 2rem; color: var(--text2); }
 
-    .loading::after {
-      content: '';
-      animation: dots 1.5s infinite;
-    }
-
-    @keyframes dots {
-      0%, 20% { content: '.'; }
-      40% { content: '..'; }
-      60%, 100% { content: '...'; }
-    }
-
-    /* Responsive */
     @media (max-width: 768px) {
       .header { padding: 1rem; }
       .container { padding: 1rem; }
-      .kpi .value { font-size: 1.5rem; }
+      .kpi .value { font-size: 1.4rem; }
     }
   </style>
 </head>
@@ -330,34 +87,31 @@
 </div>
 
 <div class="container">
-  <!-- KPI -->
   <div class="kpi-row" id="kpi-row"></div>
 
-  <!-- Tabs -->
   <div class="tabs" id="tabs">
     <div class="tab active" data-section="events">Eventi</div>
     <div class="tab" data-section="results">Classifiche</div>
     <div class="tab" data-section="stats">Statistiche</div>
   </div>
 
-  <!-- Events -->
   <div class="section active" id="sec-events">
+    <div class="filters">
+      <label>Cerca</label>
+      <input type="text" id="filter-event" placeholder="Citta, anno, stagione..." oninput="renderEvents()">
+    </div>
     <div class="event-grid" id="event-grid"></div>
   </div>
 
-  <!-- Results -->
   <div class="section" id="sec-results">
     <div class="filters" id="results-filters"></div>
-    <div class="table-wrap">
-      <table id="results-table">
-        <thead><tr></tr></thead>
-        <tbody></tbody>
-      </table>
+    <div id="results-loading" class="loading-msg"></div>
+    <div class="table-wrap" id="results-table-wrap" style="display:none">
+      <table id="results-table"><thead><tr></tr></thead><tbody></tbody></table>
     </div>
     <div class="pagination" id="results-pagination"></div>
   </div>
 
-  <!-- Stats -->
   <div class="section" id="sec-stats">
     <div class="filters" id="stats-filters"></div>
     <div class="stats-grid" id="stats-grid"></div>
@@ -365,188 +119,150 @@
 </div>
 
 <script>
-// ---------------------------------------------------------------------------
-// State
-// ---------------------------------------------------------------------------
 let DATA = null;
-let currentSort = { col: null, asc: true };
+let raceCache = {};
+let currentRaceResults = [];
+let filteredResults = [];
+let currentSort = { col: 'total_time', asc: true };
 let resultsPage = 0;
 const PAGE_SIZE = 50;
-let filteredResults = [];
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-function msToTime(ms) {
-  if (!ms) return '—';
-  const s = Math.floor(ms / 1000);
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const sec = s % 60;
-  if (h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
-  return `${m}:${String(sec).padStart(2,'0')}`;
+function minsToTime(m) {
+  if (!m || isNaN(m)) return '—';
+  const t = Math.round(m * 60);
+  const h = Math.floor(t / 3600), mn = Math.floor((t % 3600) / 60), s = t % 60;
+  return h > 0 ? `${h}:${String(mn).padStart(2,'0')}:${String(s).padStart(2,'0')}` : `${mn}:${String(s).padStart(2,'0')}`;
 }
 
-function rankClass(r) {
-  if (r === 1) return 'rank-1';
-  if (r === 2) return 'rank-2';
-  if (r === 3) return 'rank-3';
-  return '';
-}
-
-function groupEvents(events) {
-  // Raggruppa per city (es. "2025 Rimini")
-  const groups = {};
-  for (const e of events) {
-    const key = e.city || 'Altro';
-    if (!groups[key]) groups[key] = { city: key, start_date: e.start_date, divisions: [] };
-    groups[key].divisions.push(e);
-  }
-  return Object.values(groups).sort((a, b) => b.start_date.localeCompare(a.start_date));
-}
-
-function uniqueDivisions() {
-  const divs = new Set();
-  for (const r of DATA.results) {
-    divs.add(r._division_name || r._event_name || '');
-  }
-  return [...divs].sort();
-}
-
-// ---------------------------------------------------------------------------
-// Render KPI
-// ---------------------------------------------------------------------------
+// -- KPI --
 function renderKPI() {
-  const row = document.getElementById('kpi-row');
-  const eventCities = new Set(DATA.events.map(e => e.city));
-  const athletes = new Set(DATA.results.map(r => r.athlete_name));
-
-  const bestTime = DATA.results.reduce((min, r) => {
-    if (r._division_name && r._division_name.includes('PRO') && !r._division_name.includes('DOUBLES')
-        && !r._division_name.includes('RELAY') && !r._division_name.includes('ADAPTIVE')) {
-      const t = r.total_time_ms;
-      if (t && (!min.time || t < min.time)) return { time: t, name: r.athlete_name, div: r._division_name };
-    }
-    return min;
-  }, { time: null, name: '', div: '' });
-
-  row.innerHTML = `
-    <div class="kpi">
-      <div class="label">Eventi</div>
-      <div class="value">${eventCities.size}</div>
-      <div class="sub">${DATA.events.length} divisioni totali</div>
-    </div>
-    <div class="kpi">
-      <div class="label">Atleti</div>
-      <div class="value">${athletes.size.toLocaleString()}</div>
-      <div class="sub">${DATA.results.length.toLocaleString()} risultati</div>
-    </div>
-    <div class="kpi">
-      <div class="label">Miglior Tempo PRO</div>
-      <div class="value">${msToTime(bestTime.time)}</div>
-      <div class="sub">${bestTime.name ? bestTime.name.split(', ').reverse().join(' ') : '—'}</div>
-    </div>
-    <div class="kpi">
-      <div class="label">Ultimo Sync</div>
-      <div class="value">${DATA.last_sync ? DATA.last_sync.slice(0,8).replace(/(\d{4})(\d{2})(\d{2})/, '$3/$2/$1') : '—'}</div>
-      <div class="sub">${DATA.last_sync ? DATA.last_sync.slice(9).replace(/(\d{2})(\d{2})(\d{2})/, '$1:$2') : ''}</div>
-    </div>
+  const totalResults = DATA.events.reduce((s, e) => s + (e.results_count || 0), 0);
+  const locations = new Set(DATA.events.map(e => `${e.location}_${e.year}`));
+  const seasons = new Set(DATA.events.map(e => e.season));
+  document.getElementById('kpi-row').innerHTML = `
+    <div class="kpi"><div class="label">Gare</div><div class="value">${locations.size}</div><div class="sub">${seasons.size} stagioni</div></div>
+    <div class="kpi"><div class="label">Risultati totali</div><div class="value">${totalResults.toLocaleString()}</div><div class="sub">${DATA.events.length} divisioni</div></div>
+    <div class="kpi"><div class="label">Ultimo Sync</div><div class="value">${DATA.last_sync ? DATA.last_sync.slice(0,8).replace(/(\d{4})(\d{2})(\d{2})/, '$3/$2/$1') : '—'}</div></div>
   `;
 }
 
-// ---------------------------------------------------------------------------
-// Render Events
-// ---------------------------------------------------------------------------
+// -- Events --
 function renderEvents() {
   const grid = document.getElementById('event-grid');
-  const groups = groupEvents(DATA.events);
+  const q = (document.getElementById('filter-event')?.value || '').toLowerCase();
+  let events = DATA.events;
+  if (q) events = events.filter(e => [e.name, e.location, String(e.year), String(e.season), e.divisions?.join(' ')].join(' ').toLowerCase().includes(q));
+  events = [...events].sort((a, b) => (b.results_count || 0) - (a.results_count || 0));
 
-  grid.innerHTML = groups.map(g => {
-    const totalResults = g.divisions.reduce((sum, d) => sum + (d.results_count || 0), 0);
-    const divNames = g.divisions.map(d => d.name).join(', ');
-    return `
-      <div class="event-card" onclick="showDivisionResults('${g.city}')">
-        <h3>${g.city}</h3>
-        <div class="event-date">${g.start_date}</div>
-        <div class="event-count">${totalResults.toLocaleString()} atleti &middot; ${g.divisions.length} divisioni</div>
-      </div>
-    `;
-  }).join('');
+  grid.innerHTML = events.length ? events.map(e => `
+    <div class="event-card" onclick="loadRace('${e.key}')">
+      <h3>${e.name}</h3>
+      <div class="city">${e.location} ${e.year} — Season ${e.season}</div>
+      <div class="info">${(e.results_count||0).toLocaleString()} atleti &middot; ${e.divisions?.join(', ') || ''}</div>
+    </div>
+  `).join('') : '<div class="loading-msg">Nessun evento trovato</div>';
 }
 
-function showDivisionResults(city) {
-  // Switch to results tab filtered by this city
+// -- Load race results on demand --
+async function loadRace(key) {
   document.querySelector('[data-section="results"]').click();
-  const sel = document.getElementById('filter-division');
-  if (sel) {
-    // Find divisions matching this city
-    const eventSlugs = new Set(DATA.events.filter(e => e.city === city).map(e => e.slug));
-    // Select first matching division
-    for (const opt of sel.options) {
-      const div = opt.value;
-      if (div && DATA.results.some(r => r._division_name === div && eventSlugs.has(r._event_slug))) {
-        sel.value = div;
-        break;
-      }
-    }
-    filterResults();
+  const loading = document.getElementById('results-loading');
+  const wrap = document.getElementById('results-table-wrap');
+
+  // Set event selector
+  const sel = document.getElementById('filter-event-select');
+  if (sel) sel.value = key;
+
+  if (raceCache[key]) {
+    currentRaceResults = raceCache[key];
+    applyResultFilters();
+    return;
+  }
+
+  loading.textContent = 'Caricamento risultati...';
+  wrap.style.display = 'none';
+  document.getElementById('results-pagination').innerHTML = '';
+
+  try {
+    const resp = await fetch(`data/races/${key}.json`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    currentRaceResults = await resp.json();
+    raceCache[key] = currentRaceResults;
+    loading.textContent = '';
+    wrap.style.display = '';
+    applyResultFilters();
+  } catch (err) {
+    loading.textContent = `Errore: ${err.message}`;
   }
 }
 
-// ---------------------------------------------------------------------------
-// Render Results
-// ---------------------------------------------------------------------------
+// -- Results filters --
 function renderResultsFilters() {
-  const container = document.getElementById('results-filters');
-  const divisions = uniqueDivisions();
-
-  container.innerHTML = `
+  const events = DATA.events.sort((a, b) => a.name.localeCompare(b.name));
+  document.getElementById('results-filters').innerHTML = `
+    <label>Evento</label>
+    <select id="filter-event-select" onchange="loadRace(this.value)" style="min-width:250px">
+      <option value="">— Seleziona un evento —</option>
+      ${events.map(e => `<option value="${e.key}">${e.name} (${e.location} ${e.year})</option>`).join('')}
+    </select>
     <label>Divisione</label>
-    <select id="filter-division" onchange="filterResults()">
+    <select id="filter-division" onchange="applyResultFilters()">
       <option value="">Tutte</option>
-      ${divisions.map(d => `<option value="${d}">${d}</option>`).join('')}
+    </select>
+    <label>Genere</label>
+    <select id="filter-gender" onchange="applyResultFilters()">
+      <option value="">Tutti</option>
     </select>
     <label>Cerca atleta</label>
-    <input type="text" id="filter-athlete" placeholder="Nome o cognome..." oninput="filterResults()">
+    <input type="text" id="filter-athlete" placeholder="Nome..." oninput="applyResultFilters()">
   `;
 }
 
-function filterResults() {
-  const div = document.getElementById('filter-division').value;
+function applyResultFilters() {
+  // Update division/gender dropdowns based on loaded data
+  const divSel = document.getElementById('filter-division');
+  const genSel = document.getElementById('filter-gender');
+  const curDiv = divSel.value;
+  const curGen = genSel.value;
+
+  const divs = [...new Set(currentRaceResults.map(r => r.division).filter(Boolean))].sort();
+  const gens = [...new Set(currentRaceResults.map(r => r.gender).filter(Boolean))].sort();
+
+  divSel.innerHTML = '<option value="">Tutte</option>' + divs.map(d => `<option value="${d}" ${d===curDiv?'selected':''}>${d}</option>`).join('');
+  genSel.innerHTML = '<option value="">Tutti</option>' + gens.map(g => `<option value="${g}" ${g===curGen?'selected':''}>${g}</option>`).join('');
+
+  const div = divSel.value;
+  const gen = genSel.value;
   const search = (document.getElementById('filter-athlete').value || '').toLowerCase();
 
-  filteredResults = DATA.results.filter(r => {
-    if (div && (r._division_name || '') !== div) return false;
-    if (search && !(r.athlete_name || '').toLowerCase().includes(search)) return false;
+  filteredResults = currentRaceResults.filter(r => {
+    if (div && r.division !== div) return false;
+    if (gen && r.gender !== gen) return false;
+    if (search && !(r.name || '').toLowerCase().includes(search)) return false;
     return true;
   });
 
-  // Sort by rank by default
-  filteredResults.sort((a, b) => (a.rank_overall || 9999) - (b.rank_overall || 9999));
-  currentSort = { col: 'rank_overall', asc: true };
-
+  filteredResults.sort((a, b) => (a.total_time || 9999) - (b.total_time || 9999));
+  currentSort = { col: 'total_time', asc: true };
   resultsPage = 0;
+
+  document.getElementById('results-loading').textContent = '';
+  document.getElementById('results-table-wrap').style.display = '';
   renderResultsTable();
 }
 
 function sortResults(col) {
-  if (currentSort.col === col) {
-    currentSort.asc = !currentSort.asc;
-  } else {
-    currentSort.col = col;
-    currentSort.asc = true;
-  }
+  if (currentSort.col === col) currentSort.asc = !currentSort.asc;
+  else { currentSort.col = col; currentSort.asc = true; }
 
   filteredResults.sort((a, b) => {
     let va = a[col], vb = b[col];
-    if (va == null) va = col === 'athlete_name' ? 'zzz' : 999999999;
-    if (vb == null) vb = col === 'athlete_name' ? 'zzz' : 999999999;
-    if (typeof va === 'string') {
-      return currentSort.asc ? va.localeCompare(vb) : vb.localeCompare(va);
-    }
-    return currentSort.asc ? va - vb : vb - va;
+    if (va == null || va !== va) va = typeof vb === 'string' ? 'zzz' : 999999;
+    if (vb == null || vb !== vb) vb = typeof va === 'string' ? 'zzz' : 999999;
+    return typeof va === 'string'
+      ? (currentSort.asc ? va.localeCompare(vb) : vb.localeCompare(va))
+      : (currentSort.asc ? va - vb : vb - va);
   });
-
   resultsPage = 0;
   renderResultsTable();
 }
@@ -556,63 +272,72 @@ function renderResultsTable() {
   const tbody = document.querySelector('#results-table tbody');
 
   const cols = [
-    { key: 'rank_overall', label: '#' },
-    { key: 'athlete_name', label: 'Atleta' },
-    { key: '_division_name', label: 'Divisione' },
-    { key: 'age_group', label: 'Categoria' },
-    { key: 'total_time_ms', label: 'Tempo' },
+    { key: '_rank', label: '#' },
+    { key: 'name', label: 'Atleta' },
+    { key: 'division', label: 'Divisione' },
+    { key: 'gender', label: 'Gen' },
+    { key: 'age_group', label: 'Eta' },
+    { key: 'nationality', label: 'Naz' },
+    { key: 'total_time', label: 'Tempo' },
+    { key: 'skiErg', label: 'SkiErg' },
+    { key: 'sledPush', label: 'Sled Push' },
+    { key: 'sledPull', label: 'Sled Pull' },
+    { key: 'burpee', label: 'Burpee' },
+    { key: 'row', label: 'Row' },
+    { key: 'farmersCarry', label: 'Farmers' },
+    { key: 'lunges', label: 'Lunges' },
+    { key: 'wallBalls', label: 'Wall Balls' },
   ];
 
   thead.innerHTML = cols.map(c => {
-    let cls = '';
-    if (currentSort.col === c.key) cls = currentSort.asc ? 'sorted-asc' : 'sorted-desc';
+    let cls = currentSort.col === c.key ? (currentSort.asc ? 'sorted-asc' : 'sorted-desc') : '';
     return `<th class="${cls}" onclick="sortResults('${c.key}')">${c.label}</th>`;
   }).join('');
 
   const start = resultsPage * PAGE_SIZE;
   const page = filteredResults.slice(start, start + PAGE_SIZE);
 
-  tbody.innerHTML = page.map(r => `
-    <tr>
-      <td class="${rankClass(r.rank_overall)}">${r.rank_overall || '—'}</td>
-      <td>${(r.athlete_name || '').split(', ').reverse().join(' ')}</td>
-      <td>${r._division_name || ''}</td>
-      <td>${r.age_group || ''}</td>
-      <td class="time">${msToTime(r.total_time_ms)}</td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = page.map((r, i) => {
+    const rank = start + i + 1;
+    const rc = rank <= 3 ? `rank-${rank}` : '';
+    return `<tr>
+      <td class="${rc}">${rank}</td>
+      <td>${(r.name||'').split(', ').reverse().join(' ')}</td>
+      <td>${r.division||''}</td>
+      <td>${r.gender||''}</td>
+      <td>${r.age_group||''}</td>
+      <td>${r.nationality||''}</td>
+      <td class="time">${minsToTime(r.total_time)}</td>
+      <td class="time">${minsToTime(r.skiErg)}</td>
+      <td class="time">${minsToTime(r.sledPush)}</td>
+      <td class="time">${minsToTime(r.sledPull)}</td>
+      <td class="time">${minsToTime(r.burpee)}</td>
+      <td class="time">${minsToTime(r.row)}</td>
+      <td class="time">${minsToTime(r.farmersCarry)}</td>
+      <td class="time">${minsToTime(r.lunges)}</td>
+      <td class="time">${minsToTime(r.wallBalls)}</td>
+    </tr>`;
+  }).join('');
 
-  // Pagination
-  const totalPages = Math.ceil(filteredResults.length / PAGE_SIZE);
-  const pag = document.getElementById('results-pagination');
-  pag.innerHTML = `
-    <button onclick="resultsPage=0; renderResultsTable()" ${resultsPage === 0 ? 'disabled' : ''}>&laquo;</button>
-    <button onclick="resultsPage--; renderResultsTable()" ${resultsPage === 0 ? 'disabled' : ''}>&lsaquo;</button>
-    <span>Pagina ${resultsPage + 1} di ${totalPages} (${filteredResults.length.toLocaleString()} risultati)</span>
-    <button onclick="resultsPage++; renderResultsTable()" ${resultsPage >= totalPages - 1 ? 'disabled' : ''}>&rsaquo;</button>
-    <button onclick="resultsPage=${totalPages - 1}; renderResultsTable()" ${resultsPage >= totalPages - 1 ? 'disabled' : ''}>&raquo;</button>
+  const tp = Math.ceil(filteredResults.length / PAGE_SIZE) || 1;
+  document.getElementById('results-pagination').innerHTML = `
+    <button onclick="resultsPage=0;renderResultsTable()" ${resultsPage===0?'disabled':''}>&laquo;</button>
+    <button onclick="resultsPage--;renderResultsTable()" ${resultsPage===0?'disabled':''}>&lsaquo;</button>
+    <span>Pag ${resultsPage+1}/${tp} (${filteredResults.length.toLocaleString()} ris.)</span>
+    <button onclick="resultsPage++;renderResultsTable()" ${resultsPage>=tp-1?'disabled':''}>&rsaquo;</button>
+    <button onclick="resultsPage=${tp-1};renderResultsTable()" ${resultsPage>=tp-1?'disabled':''}>&raquo;</button>
   `;
 }
 
-// ---------------------------------------------------------------------------
-// Render Stats
-// ---------------------------------------------------------------------------
+// -- Stats --
 function renderStatsFilters() {
-  const container = document.getElementById('stats-filters');
-  const keys = Object.keys(DATA.stats);
-  if (!keys.length) {
-    container.innerHTML = '<span style="color:var(--text2)">Nessuna statistica disponibile</span>';
-    return;
-  }
+  const events = DATA.events.filter(e => e.stats && Object.keys(e.stats).length > 0).sort((a,b) => a.name.localeCompare(b.name));
+  if (!events.length) { document.getElementById('stats-filters').innerHTML = '<span style="color:var(--text2)">Nessuna statistica</span>'; return; }
 
-  container.innerHTML = `
-    <label>Divisione</label>
-    <select id="filter-stats-div" onchange="renderStats()">
-      ${keys.map(k => {
-        const s = DATA.stats[k];
-        const label = s.slug || k;
-        return `<option value="${k}">${label}</option>`;
-      }).join('')}
+  document.getElementById('stats-filters').innerHTML = `
+    <label>Evento</label>
+    <select id="filter-stats-event" onchange="renderStats()" style="min-width:250px">
+      ${events.map(e => `<option value="${e.key}">${e.name} (${e.location} ${e.year})</option>`).join('')}
     </select>
   `;
   renderStats();
@@ -620,63 +345,26 @@ function renderStatsFilters() {
 
 function renderStats() {
   const grid = document.getElementById('stats-grid');
-  const sel = document.getElementById('filter-stats-div');
-  if (!sel) return;
+  const key = document.getElementById('filter-stats-event')?.value;
+  const event = DATA.events.find(e => e.key === key);
+  if (!event || !event.stats) { grid.innerHTML = ''; return; }
 
-  const stat = DATA.stats[sel.value];
-  if (!stat) { grid.innerHTML = ''; return; }
-
-  // Overall stats card
-  let html = `
+  grid.innerHTML = Object.values(event.stats).sort((a,b) => `${a.division}_${a.gender}`.localeCompare(`${b.division}_${b.gender}`)).map(s => `
     <div class="stat-card">
-      <h3>Panoramica Generale</h3>
-      <div class="stat-row"><span class="stat-label">Partecipanti</span><span class="stat-value">${stat.count || '—'}</span></div>
-      <div class="stat-row"><span class="stat-label">Tempo medio</span><span class="stat-value time">${msToTime(stat.avg_total_time_ms)}</span></div>
-      <div class="stat-row"><span class="stat-label">Mediana</span><span class="stat-value time">${msToTime(stat.median_total_time_ms)}</span></div>
-      <div class="stat-row"><span class="stat-label">Miglior tempo</span><span class="stat-value time">${msToTime(stat.min_total_time_ms)}</span></div>
-      <div class="stat-row"><span class="stat-label">Peggior tempo</span><span class="stat-value time">${msToTime(stat.max_total_time_ms)}</span></div>
-      <div class="stat-row"><span class="stat-label">P10 (top 10%)</span><span class="stat-value time">${msToTime(stat.p10_total_time_ms)}</span></div>
-      <div class="stat-row"><span class="stat-label">P25</span><span class="stat-value time">${msToTime(stat.p25_total_time_ms)}</span></div>
-      <div class="stat-row"><span class="stat-label">P75</span><span class="stat-value time">${msToTime(stat.p75_total_time_ms)}</span></div>
-      <div class="stat-row"><span class="stat-label">P90</span><span class="stat-value time">${msToTime(stat.p90_total_time_ms)}</span></div>
+      <h3>${s.division} — ${s.gender} (${s.count} atleti)</h3>
+      <div class="stat-row"><span class="sl">Miglior tempo</span><span class="time">${minsToTime(s.min)}</span></div>
+      <div class="stat-row"><span class="sl">Tempo medio</span><span class="time">${minsToTime(s.avg)}</span></div>
+      <div class="stat-row"><span class="sl">Mediana</span><span class="time">${minsToTime(s.median)}</span></div>
+      <div class="stat-row"><span class="sl">Peggior tempo</span><span class="time">${minsToTime(s.max)}</span></div>
+      ${s.p10 ? `<div class="stat-row"><span class="sl">P10 (top 10%)</span><span class="time">${minsToTime(s.p10)}</span></div>` : ''}
+      ${s.p25 ? `<div class="stat-row"><span class="sl">P25</span><span class="time">${minsToTime(s.p25)}</span></div>` : ''}
+      ${s.p75 ? `<div class="stat-row"><span class="sl">P75</span><span class="time">${minsToTime(s.p75)}</span></div>` : ''}
+      ${s.p90 ? `<div class="stat-row"><span class="sl">P90</span><span class="time">${minsToTime(s.p90)}</span></div>` : ''}
     </div>
-  `;
-
-  // Buckets (age groups)
-  const buckets = (stat.buckets || []).filter(b => b.count >= 5);
-  if (buckets.length > 0) {
-    html += `
-      <div class="stat-card">
-        <h3>Per Categoria di Eta</h3>
-        ${buckets.sort((a,b) => (a.age_group||'').localeCompare(b.age_group||'')).map(b => `
-          <div style="margin-bottom:0.8rem">
-            <div class="stat-row">
-              <span class="stat-label"><strong>${b.age_group || '?'}</strong> (${b.count} atleti)</span>
-              <span class="stat-value time">${msToTime(b.total_time?.median_ms)}</span>
-            </div>
-            <div class="pct-bar-wrap">
-              <div class="pct-bar" style="width:100%"></div>
-              ${b.total_time?.p10_ms && stat.max_total_time_ms ? `
-                <div class="pct-marker" style="left:${(1 - b.total_time.p10_ms / stat.max_total_time_ms) * 100}%" title="P10: ${msToTime(b.total_time.p10_ms)}"></div>
-              ` : ''}
-            </div>
-            <div class="stat-row" style="font-size:0.78rem">
-              <span class="stat-label">Best ${msToTime(b.total_time?.min_ms)}</span>
-              <span class="stat-label">P10 ${msToTime(b.total_time?.p10_ms)}</span>
-              <span class="stat-label">P90 ${msToTime(b.total_time?.p90_ms)}</span>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    `;
-  }
-
-  grid.innerHTML = html;
+  `).join('');
 }
 
-// ---------------------------------------------------------------------------
-// Tabs
-// ---------------------------------------------------------------------------
+// -- Tabs --
 document.getElementById('tabs').addEventListener('click', e => {
   const tab = e.target.closest('.tab');
   if (!tab) return;
@@ -686,35 +374,23 @@ document.getElementById('tabs').addEventListener('click', e => {
   document.getElementById('sec-' + tab.dataset.section).classList.add('active');
 });
 
-// ---------------------------------------------------------------------------
-// Init
-// ---------------------------------------------------------------------------
+// -- Init --
 async function init() {
   try {
     const resp = await fetch('data/dashboard.json');
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     DATA = await resp.json();
   } catch (err) {
-    document.querySelector('.container').innerHTML = `
-      <div class="loading" style="animation:none">
-        Errore nel caricamento dei dati.<br>
-        <small style="color:var(--text2)">${err.message}</small>
-      </div>`;
+    document.querySelector('.container').innerHTML = `<div class="loading-msg">Errore: ${err.message}</div>`;
     return;
   }
-
-  document.getElementById('sync-info').textContent =
-    `Ultimo sync: ${DATA.last_sync ? DATA.last_sync.slice(0,8).replace(/(\d{4})(\d{2})(\d{2})/, '$3/$2/$1') : '—'}`;
-
+  document.getElementById('sync-info').textContent = `${DATA.events.length} gare disponibili`;
   renderKPI();
   renderEvents();
   renderResultsFilters();
-  filterResults();
   renderStatsFilters();
 }
-
 init();
 </script>
-
 </body>
 </html>
