@@ -86,7 +86,7 @@
     .btn-generate:hover { background: var(--accent2); }
 
     .athlete-results { margin-top: 1rem; }
-    .athlete-race-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; margin-bottom: 0.8rem; }
+    .athlete-race-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 0; margin-bottom: 1.2rem; overflow: hidden; }
     .athlete-race-card h4 { color: var(--accent); margin-bottom: 0.5rem; }
     .athlete-splits { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.3rem; margin-top: 0.5rem; }
     .athlete-split { font-size: 0.8rem; }
@@ -94,6 +94,103 @@
     .athlete-split .sv { font-family: 'SF Mono', monospace; }
     .athlete-best { color: var(--green); font-weight: 600; }
     .athlete-worst { color: #ff6b6b; font-weight: 600; }
+
+    /* Enhanced race card styles */
+    .arc-header { padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border); }
+    .arc-event-line { color: var(--text2); font-size: 0.85rem; margin-bottom: 0.3rem; letter-spacing: 0.5px; text-transform: uppercase; }
+    .arc-meta-line { color: var(--text2); font-size: 0.8rem; margin-top: 0.4rem; }
+    .arc-meta-line span { display: inline-block; margin-right: 0.5rem; padding: 0.15rem 0.5rem; background: var(--surface2); border-radius: 4px; font-size: 0.75rem; }
+    .arc-total-time { font-size: 2rem; font-weight: 800; color: var(--accent); font-family: 'SF Mono', 'Cascadia Code', monospace; margin-top: 0.3rem; }
+
+    .arc-ranking-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.85rem; font-weight: 700; margin: 0.8rem 1.5rem; }
+    .arc-ranking-badge.top25 { background: rgba(0,214,143,0.15); color: #00d68f; border: 1px solid rgba(0,214,143,0.3); }
+    .arc-ranking-badge.top50 { background: rgba(200,255,0,0.12); color: #c8ff00; border: 1px solid rgba(200,255,0,0.25); }
+    .arc-ranking-badge.top75 { background: rgba(255,165,0,0.12); color: #ffa500; border: 1px solid rgba(255,165,0,0.25); }
+    .arc-ranking-badge.bottom25 { background: rgba(255,107,107,0.12); color: #ff6b6b; border: 1px solid rgba(255,107,107,0.25); }
+
+    .arc-body { padding: 1rem 1.5rem; }
+    .arc-section-title { font-size: 0.75rem; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.6rem; font-weight: 600; }
+
+    .arc-split-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; font-size: 0.82rem; }
+    .arc-split-name { width: 85px; color: var(--text2); flex-shrink: 0; font-size: 0.78rem; }
+    .arc-split-bars { flex: 1; position: relative; height: 22px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+    .arc-split-bar-athlete { height: 100%; border-radius: 4px; min-width: 4px; transition: width 0.3s; }
+    .arc-split-bar-avg { position: absolute; top: 0; width: 2px; height: 100%; background: rgba(255,255,255,0.5); z-index: 2; }
+    .arc-split-time { width: 60px; text-align: right; font-family: 'SF Mono', monospace; font-weight: 600; flex-shrink: 0; font-size: 0.8rem; }
+    .arc-split-rank { width: 44px; text-align: right; font-size: 0.72rem; color: var(--text2); flex-shrink: 0; }
+    .arc-split-delta { width: 56px; text-align: right; font-size: 0.72rem; flex-shrink: 0; font-family: 'SF Mono', monospace; }
+    .arc-split-delta.faster { color: #00d68f; }
+    .arc-split-delta.slower { color: #ff6b6b; }
+
+    .arc-legend { display: flex; gap: 1rem; margin-top: 0.5rem; font-size: 0.72rem; color: var(--text2); align-items: center; }
+    .arc-legend-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 3px; vertical-align: middle; }
+
+    .arc-radar-section { display: flex; justify-content: center; padding: 1rem 1.5rem; border-top: 1px solid var(--border); }
+    .arc-radar-canvas { max-width: 100%; }
+
+    .arc-stations-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; padding: 1rem 1.5rem; border-top: 1px solid var(--border); }
+    .arc-station-card { background: var(--surface2); border-radius: 12px; padding: 1rem; }
+    .arc-station-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.6rem; }
+    .arc-station-name { font-weight: 700; font-size: 0.9rem; }
+    .arc-station-time { font-family: 'SF Mono', monospace; font-size: 1.1rem; font-weight: 800; color: var(--accent); }
+    .arc-station-badges { display: flex; gap: 0.4rem; margin-bottom: 0.6rem; }
+    .arc-station-badge { font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 600; }
+    .arc-histo-wrap { position: relative; height: 80px; margin-top: 0.4rem; }
+    .arc-histo-canvas { width: 100%; height: 100%; }
+    .arc-histo-axis { display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text2); margin-top: 2px; font-family: monospace; }
+
+    .arc-footer { padding: 0.8rem 1.5rem; border-top: 1px solid var(--border); display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+
+    /* Cross Analysis styles */
+    .cross-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .cross-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; }
+    .cross-card h3 { font-size: 0.8rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.4rem; }
+    .cross-card .big { font-size: 1.6rem; font-weight: 800; color: var(--accent); font-family: 'SF Mono', monospace; }
+    .cross-card .sub { font-size: 0.8rem; color: var(--text2); margin-top: 0.2rem; }
+
+    .cross-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.2rem; }
+    .cross-section h3 { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .cross-section h3 .icon { color: var(--accent); }
+
+    .cross-chart-wrap { position: relative; width: 100%; }
+    .cross-chart-wrap canvas { display: block; max-width: 100%; }
+
+    .cross-pb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.8rem; }
+    .cross-pb-item { background: var(--surface2); border-radius: 8px; padding: 0.8rem; }
+    .cross-pb-item .station { font-size: 0.8rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.3px; }
+    .cross-pb-item .pb-time { font-size: 1.3rem; font-weight: 800; color: var(--green); font-family: 'SF Mono', monospace; }
+    .cross-pb-item .pb-where { font-size: 0.75rem; color: var(--text2); margin-top: 0.2rem; }
+
+    .cross-weakness-row { display: flex; align-items: center; gap: 0.8rem; padding: 0.6rem 0; border-bottom: 1px solid var(--border); }
+    .cross-weakness-row:last-child { border-bottom: none; }
+    .cross-weakness-name { width: 100px; font-weight: 600; font-size: 0.85rem; flex-shrink: 0; }
+    .cross-weakness-bar-wrap { flex: 1; height: 24px; background: var(--surface2); border-radius: 4px; overflow: hidden; position: relative; }
+    .cross-weakness-bar { height: 100%; border-radius: 4px; }
+    .cross-weakness-pct { width: 70px; text-align: right; font-family: 'SF Mono', monospace; font-size: 0.85rem; font-weight: 700; flex-shrink: 0; }
+
+    .cross-fatigue-laps { display: flex; align-items: flex-end; gap: 4px; height: 120px; padding: 0 0.5rem; }
+    .cross-fatigue-bar { flex: 1; background: var(--accent); border-radius: 4px 4px 0 0; min-width: 30px; position: relative; transition: height 0.3s; }
+    .cross-fatigue-bar .label { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 0.7rem; color: var(--text2); }
+    .cross-fatigue-bar .val { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 0.7rem; font-family: monospace; color: var(--text); white-space: nowrap; }
+
+    .cross-target-row { display: flex; align-items: center; gap: 0.8rem; padding: 0.5rem 0; font-size: 0.85rem; }
+    .cross-target-station { width: 100px; color: var(--text2); flex-shrink: 0; }
+    .cross-target-current { width: 65px; font-family: monospace; text-align: right; flex-shrink: 0; }
+    .cross-target-arrow { color: var(--accent); flex-shrink: 0; }
+    .cross-target-needed { width: 65px; font-family: monospace; text-align: right; flex-shrink: 0; color: var(--green); font-weight: 700; }
+    .cross-target-delta { font-size: 0.8rem; color: var(--text2); flex-shrink: 0; }
+
+    .cross-global-rank { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--surface2); border-radius: 12px; }
+    .cross-global-rank .rank-num { font-size: 2.5rem; font-weight: 900; color: var(--accent); font-family: 'SF Mono', monospace; }
+    .cross-global-rank .rank-detail { font-size: 0.85rem; color: var(--text2); }
+    .cross-global-rank .rank-detail strong { color: var(--text); }
+
+    @media (max-width: 500px) {
+      .arc-split-delta { display: none; }
+      .arc-split-rank { display: none; }
+      .arc-split-name { width: 68px; font-size: 0.72rem; }
+      .arc-total-time { font-size: 1.5rem; }
+    }
 
     @media (max-width: 768px) {
       .header { padding: 1rem; }
@@ -116,6 +213,7 @@
     <div class="tab active" data-section="events">Eventi</div>
     <div class="tab" data-section="results">Classifiche</div>
     <div class="tab" data-section="stats">Statistiche</div>
+    <div class="tab" data-section="cross">Cross Analysis</div>
     <div class="tab" data-section="content">Contenuti IG</div>
   </div>
 
@@ -139,6 +237,15 @@
   <div class="section" id="sec-stats">
     <div class="filters" id="stats-filters"></div>
     <div class="stats-grid" id="stats-grid"></div>
+  </div>
+
+  <div class="section" id="sec-cross">
+    <div class="filters" id="cross-filters">
+      <label>Cerca atleta</label>
+      <input type="text" id="cross-athlete-search" placeholder="Nome atleta..." style="min-width:250px">
+      <button class="btn-generate" onclick="crossSearch()">Analisi Cross-Evento</button>
+    </div>
+    <div id="cross-area"></div>
   </div>
 
   <div class="section" id="sec-content">
@@ -322,6 +429,8 @@ function renderResultsTable() {
     { key: 'farmersCarry', label: 'Farmers' },
     { key: 'lunges', label: 'Lunges' },
     { key: 'wallBalls', label: 'Wall Balls' },
+    { key: 'run_time', label: 'Run' },
+    { key: 'work_time', label: 'Work' },
   ];
 
   thead.innerHTML = cols.map(c => {
@@ -351,6 +460,8 @@ function renderResultsTable() {
       <td class="time">${minsToTime(r.farmersCarry)}</td>
       <td class="time">${minsToTime(r.lunges)}</td>
       <td class="time">${minsToTime(r.wallBalls)}</td>
+      <td class="time">${minsToTime(r.run_time)}</td>
+      <td class="time">${minsToTime(r.work_time)}</td>
     </tr>`;
   }).join('');
 
@@ -529,7 +640,9 @@ function generateTop10(key, results) {
   text += `\n${filtered.length.toLocaleString()} partecipanti totali`;
 
   const area = document.getElementById('content-area');
-  area.innerHTML = `<div class="content-output"><button class="btn-copy" onclick="copyContent()">Copia</button>${escHtml(text)}</div>`;
+  area.innerHTML = `<div class="content-output"><button class="btn-copy" onclick="copyContent()">Copia</button>${escHtml(text)}</div>` + renderGraphicControls('top10');
+  // store data for graphic generation
+  window._igData = { type: 'top10', key, event, filtered, top, div, gen, subtitle };
 }
 
 function generateReport(key, results) {
@@ -593,7 +706,8 @@ function generateReport(key, results) {
   }
 
   const area = document.getElementById('content-area');
-  area.innerHTML = `<div class="content-output"><button class="btn-copy" onclick="copyContent()">Copia</button>${escHtml(text)}</div>`;
+  area.innerHTML = `<div class="content-output"><button class="btn-copy" onclick="copyContent()">Copia</button>${escHtml(text)}</div>` + renderGraphicControls('report');
+  window._igData = { type: 'report', key, event, filtered, n, times, avg, median, p10, p90, avgSplits, slowest, fastest, topNats, div, gen, subtitle };
 }
 
 async function searchAthlete() {
@@ -604,19 +718,34 @@ async function searchAthlete() {
   }
 
   const area = document.getElementById('content-area');
-  area.innerHTML = '<div class="loading-msg">Cerco in tutte le gare...</div>';
+  const total = DATA.events.length;
+  let done = 0;
+  area.innerHTML = `<div class="loading-msg" id="search-progress">Cerco in tutte le gare... 0/${total}</div>`;
 
   const found = [];
-  for (const event of DATA.events) {
-    let results;
-    try {
-      results = await loadContentRace(event.key);
-    } catch { continue; }
-
-    const matches = results.filter(r => (r.name || '').toLowerCase().includes(search));
-    if (matches.length) {
-      matches.forEach(m => found.push({ ...m, event }));
-    }
+  // Parallel fetch in batches of 10
+  const BATCH = 10;
+  for (let i = 0; i < total; i += BATCH) {
+    const batch = DATA.events.slice(i, i + BATCH);
+    const promises = batch.map(async event => {
+      try {
+        const results = await loadContentRace(event.key);
+        const words = search.split(/\s+/);
+        const matches = results.filter(r => {
+          const name = (r.name || '').toLowerCase();
+          return words.every(w => name.includes(w));
+        });
+        if (matches.length) {
+          matches.forEach(m => found.push({ ...m, event }));
+        }
+      } catch (err) {
+        console.error(`Errore caricamento ${event.key}:`, err);
+      }
+      done++;
+    });
+    await Promise.all(promises);
+    const prog = document.getElementById('search-progress');
+    if (prog) prog.textContent = `Cerco in tutte le gare... ${done}/${total} (${found.length} trovati)`;
   }
 
   if (!found.length) {
@@ -632,65 +761,417 @@ async function searchAthlete() {
     byName[key].push(r);
   });
 
+  // Pick the athlete with most results (most relevant match)
+  const entries = Object.entries(byName).sort((a, b) => b[1].length - a[1].length);
+
   let html = '';
-  for (const [name, races] of Object.entries(byName)) {
+  let raceIdx = 0;
+  if (!window._athleteData) window._athleteData = {};
+  window._radarQueue = [];
+
+  for (const [name, races] of entries) {
     const sorted = races.sort((a, b) => (a.total_time || 9999) - (b.total_time || 9999));
-    const best = sorted.find(r => r.total_time);
+    const bestResult = sorted.find(r => r.total_time);
+    const displayName = formatName(name);
 
     html += `<div style="margin-bottom:1.5rem">`;
-    html += `<h3 style="color:var(--accent);margin-bottom:0.3rem">${formatName(name)}</h3>`;
-    html += `<div style="color:var(--text2);font-size:0.85rem;margin-bottom:0.8rem">${races.length} gara/e trovata/e${best ? ` — Miglior tempo: ${minsToTime(best.total_time)}` : ''}</div>`;
-
-    // Copyable text
-    let text = `PROFILO ATLETA — ${formatName(name)}\n${'─'.repeat(40)}\n\n`;
-    text += `Gare disputate: ${races.length}\n`;
-    if (best) text += `Miglior tempo: ${minsToTime(best.total_time)}\n`;
-    if (best?.nationality) text += `Nazionalita: ${best.nationality}\n`;
-    text += '\n';
+    html += `<h3 style="color:var(--accent);margin-bottom:0.3rem">${displayName}</h3>`;
+    html += `<div style="color:var(--text2);font-size:0.85rem;margin-bottom:0.8rem">${races.length} gara/e${bestResult ? ` — Miglior tempo: ${minsToTime(bestResult.total_time)}` : ''}</div>`;
 
     races.forEach(r => {
       const ev = r.event;
+      const rid = `race-${raceIdx++}`;
+
+      // --- Compute rankings & averages from cached race data ---
+      const allResults = raceCache[ev.key] || [];
+      const peers = allResults.filter(p => p.division === r.division && p.gender === r.gender && p.total_time);
+      const sortedPeers = [...peers].sort((a, b) => a.total_time - b.total_time);
+      const totalPeers = sortedPeers.length;
+      const rank = sortedPeers.findIndex(p => p.name === r.name && Math.abs((p.total_time||0) - (r.total_time||0)) < 0.01) + 1;
+      const pctile = totalPeers > 0 && rank > 0 ? ((rank / totalPeers) * 100) : 0;
+      const pctileClass = pctile <= 25 ? 'top25' : pctile <= 50 ? 'top50' : pctile <= 75 ? 'top75' : 'bottom25';
+
+      const splitKeys = [
+        { key: 'skiErg', name: 'SkiErg' },
+        { key: 'sledPush', name: 'Sled Push' },
+        { key: 'sledPull', name: 'Sled Pull' },
+        { key: 'burpee', name: 'Burpee BJ' },
+        { key: 'row', name: 'Row' },
+        { key: 'farmersCarry', name: 'Farmers' },
+        { key: 'lunges', name: 'Lunges' },
+        { key: 'wallBalls', name: 'Wall Balls' },
+        { key: 'run_time', name: 'Run' },
+      ];
+
+      // Compute averages, best times, and per-split ranks
+      const splitData = splitKeys.map(sk => {
+        const val = r[sk.key];
+        if (!val || isNaN(val)) return null;
+        const peerVals = sortedPeers.map(p => p[sk.key]).filter(v => v && !isNaN(v));
+        const avg = peerVals.length ? peerVals.reduce((a,b) => a+b, 0) / peerVals.length : null;
+        const best = peerVals.length ? Math.min(...peerVals) : null;
+        const peerSorted = [...peerVals].sort((a,b) => a - b);
+        const splitRank = peerSorted.filter(v => v < val).length + 1;
+        return { name: sk.name, key: sk.key, val, avg, best, splitRank, totalWithSplit: peerVals.length };
+      }).filter(Boolean);
+
+      const maxSplitVal = splitData.length ? Math.max(...splitData.map(s => s.val), ...splitData.map(s => s.avg || 0)) : 1;
+
+      // --- Build HTML ---
       html += `<div class="athlete-race-card">`;
-      html += `<h4>${ev.location.toUpperCase()} ${ev.year} — Season ${ev.season}</h4>`;
-      html += `<div>${r.division || ''} | ${r.gender || ''} | ${r.age_group || ''}</div>`;
-      html += `<div style="font-size:1.1rem;font-weight:700;margin:0.3rem 0">Tempo: ${minsToTime(r.total_time)}</div>`;
 
-      text += `${ev.location.toUpperCase()} ${ev.year} (Season ${ev.season})\n`;
-      text += `  Divisione: ${r.division || '—'} | ${r.gender || '—'}\n`;
-      text += `  Tempo: ${minsToTime(r.total_time)}\n`;
+      // 1. Header
+      html += `<div class="arc-header">`;
+      html += `<div class="arc-event-line">${ev.location.toUpperCase()} ${ev.year} — Season ${ev.season}</div>`;
+      html += `<div class="arc-meta-line">`;
+      if (r.division) html += `<span>${r.division}</span>`;
+      if (r.gender) html += `<span>${r.gender}</span>`;
+      if (r.age_group) html += `<span>${r.age_group}</span>`;
+      if (r.nationality) html += `<span>${r.nationality}</span>`;
+      html += `</div>`;
+      html += `<div class="arc-total-time">${minsToTime(r.total_time)}</div>`;
+      html += `</div>`;
 
-      const splits = [
-        { name: 'SkiErg', val: r.skiErg },
-        { name: 'Sled Push', val: r.sledPush },
-        { name: 'Sled Pull', val: r.sledPull },
-        { name: 'Burpee BJ', val: r.burpee },
-        { name: 'Row', val: r.row },
-        { name: 'Farmers', val: r.farmersCarry },
-        { name: 'Lunges', val: r.lunges },
-        { name: 'Wall Balls', val: r.wallBalls },
-      ].filter(s => s.val);
-
-      if (splits.length) {
-        const best = splits.reduce((a, b) => a.val < b.val ? a : b);
-        const worst = splits.reduce((a, b) => a.val > b.val ? a : b);
-        html += '<div class="athlete-splits">';
-        splits.forEach(s => {
-          const cls = s === best ? 'athlete-best' : s === worst ? 'athlete-worst' : '';
-          html += `<div class="athlete-split"><span class="sl">${s.name}</span> <span class="sv ${cls}">${minsToTime(s.val)}</span></div>`;
-        });
-        html += '</div>';
-        text += `  Splits: ${splits.map(s => `${s.name} ${minsToTime(s.val)}`).join(' | ')}\n`;
-        text += `  Punto forte: ${best.name} (${minsToTime(best.val)}) | Punto debole: ${worst.name} (${minsToTime(worst.val)})\n`;
+      // 2. Ranking badge
+      if (rank > 0 && totalPeers > 0) {
+        html += `<div class="arc-ranking-badge ${pctileClass}">`;
+        html += `#${rank} su ${totalPeers} — top ${pctile.toFixed(1)}%`;
+        html += `</div>`;
       }
+
+      // 3. Split bars with comparison
+      if (splitData.length) {
+        html += `<div class="arc-body">`;
+        html += `<div class="arc-section-title">Split times vs media evento</div>`;
+
+        splitData.forEach(s => {
+          const barPct = (s.val / maxSplitVal) * 100;
+          const avgPct = s.avg ? (s.avg / maxSplitVal) * 100 : 0;
+          const isFaster = s.avg && s.val < s.avg;
+          const barColor = s.avg ? (isFaster ? 'rgba(0,214,143,0.7)' : 'rgba(255,107,107,0.7)') : 'rgba(139,143,163,0.5)';
+          const delta = s.avg ? s.val - s.avg : 0;
+          const deltaSign = delta < 0 ? '' : '+';
+          const deltaClass = delta < 0 ? 'faster' : 'slower';
+
+          html += `<div class="arc-split-row">`;
+          html += `<div class="arc-split-name">${s.name}</div>`;
+          html += `<div class="arc-split-bars">`;
+          html += `<div class="arc-split-bar-athlete" style="width:${barPct.toFixed(1)}%;background:${barColor}"></div>`;
+          if (s.avg) html += `<div class="arc-split-bar-avg" style="left:${avgPct.toFixed(1)}%" title="Media: ${minsToTime(s.avg)}"></div>`;
+          html += `</div>`;
+          html += `<div class="arc-split-time">${minsToTime(s.val)}</div>`;
+          if (s.avg) html += `<div class="arc-split-delta ${deltaClass}">${deltaSign}${minsToTime(Math.abs(delta))}</div>`;
+          else html += `<div class="arc-split-delta"></div>`;
+          html += `<div class="arc-split-rank">#${s.splitRank}</div>`;
+          html += `</div>`;
+        });
+
+        // Legend
+        html += `<div class="arc-legend">`;
+        html += `<span><span class="arc-legend-dot" style="background:rgba(0,214,143,0.7)"></span>Piu veloce della media</span>`;
+        html += `<span><span class="arc-legend-dot" style="background:rgba(255,107,107,0.7)"></span>Piu lento della media</span>`;
+        html += `<span><span class="arc-legend-dot" style="background:rgba(255,255,255,0.5);width:2px;height:10px;border-radius:0"></span>Media evento</span>`;
+        html += `</div>`;
+
+        html += `</div>`; // arc-body
+      }
+
+      // 3b. Station distribution histograms
+      const histoStations = splitData.filter(s => s.name !== 'Run');
+      if (histoStations.length) {
+        if (!window._histoQueue) window._histoQueue = [];
+
+        html += `<div class="arc-stations-grid">`;
+        histoStations.forEach(s => {
+          const hid = `histo-${rid}-${s.key}`;
+          const peerVals = sortedPeers.map(p => p[s.key]).filter(v => v && !isNaN(v));
+          const splitPctile = s.totalWithSplit > 0 ? ((s.splitRank / s.totalWithSplit) * 100) : 0;
+          const badgeClass = splitPctile <= 25 ? 'top25' : splitPctile <= 50 ? 'top50' : splitPctile <= 75 ? 'top75' : 'bottom25';
+
+          html += `<div class="arc-station-card">`;
+          html += `<div class="arc-station-header">`;
+          html += `<div class="arc-station-name">${s.name}</div>`;
+          html += `<div class="arc-station-time">${minsToTime(s.val)}</div>`;
+          html += `</div>`;
+          html += `<div class="arc-station-badges">`;
+          html += `<span class="arc-station-badge arc-ranking-badge ${badgeClass}" style="margin:0;padding:0.1rem 0.4rem">#${s.splitRank} su ${s.totalWithSplit}</span>`;
+          html += `<span class="arc-station-badge arc-ranking-badge ${badgeClass}" style="margin:0;padding:0.1rem 0.4rem">top ${splitPctile.toFixed(1)}%</span>`;
+          html += `</div>`;
+          html += `<div class="arc-histo-wrap"><canvas id="${hid}" class="arc-histo-canvas"></canvas></div>`;
+          html += `<div class="arc-histo-axis" id="${hid}-axis"></div>`;
+          html += `</div>`;
+
+          window._histoQueue.push({ id: hid, vals: peerVals, athleteVal: s.val });
+        });
+        html += `</div>`;
+      }
+
+      // 4. Individual Run Laps
+      const runLapKeys = ['run1','run2','run3','run4','run5','run6','run7','run8'];
+      const runLaps = runLapKeys.map((k, i) => {
+        const val = r[k];
+        if (!val || isNaN(val)) return null;
+        const peerVals = sortedPeers.map(p => p[k]).filter(v => v && !isNaN(v));
+        const avg = peerVals.length ? peerVals.reduce((a,b) => a+b, 0) / peerVals.length : null;
+        const peerSorted = [...peerVals].sort((a,b) => a - b);
+        const lapRank = peerSorted.filter(v => v < val).length + 1;
+        return { name: `Run ${i+1}`, key: k, val, avg, lapRank, total: peerVals.length };
+      }).filter(Boolean);
+
+      if (runLaps.length > 0) {
+        const maxRunVal = Math.max(...runLaps.map(l => l.val), ...runLaps.map(l => l.avg || 0));
+        const minRunVal = Math.min(...runLaps.map(l => l.val));
+        const avgRunVal = runLaps.reduce((s, l) => s + l.val, 0) / runLaps.length;
+
+        // Stations interleaved between runs
+        const stationOrder = ['skiErg','sledPush','sledPull','burpee','row','farmersCarry','lunges','wallBalls'];
+        const stationNames = { skiErg:'SkiErg', sledPush:'Sled Push', sledPull:'Sled Pull', burpee:'Burpee BJ', row:'Row', farmersCarry:'Farmers', lunges:'Lunges', wallBalls:'Wall Balls' };
+
+        html += `<div class="arc-body" style="border-top:1px solid var(--border)">`;
+        html += `<div class="arc-section-title">Run Laps</div>`;
+        html += `<div style="display:flex;gap:1rem;margin-bottom:0.8rem;font-size:0.78rem;color:var(--text2)">`;
+        html += `<span>Avg: <strong style="color:var(--text)">${minsToTime(avgRunVal)}</strong></span>`;
+        html += `<span>Best: <strong style="color:var(--green)">${minsToTime(minRunVal)}</strong></span>`;
+        const maxLap = runLaps.reduce((a,b) => a.val > b.val ? a : b);
+        const minLap = runLaps.reduce((a,b) => a.val < b.val ? a : b);
+        html += `</div>`;
+
+        runLaps.forEach((lap, i) => {
+          const barPct = (lap.val / maxRunVal) * 100;
+          const avgPct = lap.avg ? (lap.avg / maxRunVal) * 100 : 0;
+          const isFaster = lap.avg && lap.val < lap.avg;
+          const isBest = lap === minLap;
+          const isWorst = lap === maxLap;
+          const barColor = isBest ? 'rgba(0,214,143,0.8)' : isWorst ? 'rgba(255,107,107,0.8)' : isFaster ? 'rgba(0,214,143,0.5)' : 'rgba(255,107,107,0.5)';
+          const delta = lap.avg ? lap.val - lap.avg : 0;
+          const deltaSign = delta < 0 ? '' : '+';
+          const deltaClass = delta < 0 ? 'faster' : 'slower';
+          const lapPctile = lap.total > 0 ? ((lap.lapRank / lap.total) * 100).toFixed(1) : '—';
+
+          html += `<div class="arc-split-row">`;
+          html += `<div class="arc-split-name" style="font-weight:${isBest||isWorst?'700':'400'};color:${isBest?'var(--green)':isWorst?'#ff6b6b':'var(--text2)'}">${lap.name}</div>`;
+          html += `<div class="arc-split-bars">`;
+          html += `<div class="arc-split-bar-athlete" style="width:${barPct.toFixed(1)}%;background:${barColor}"></div>`;
+          if (lap.avg) html += `<div class="arc-split-bar-avg" style="left:${avgPct.toFixed(1)}%" title="Media: ${minsToTime(lap.avg)}"></div>`;
+          html += `</div>`;
+          html += `<div class="arc-split-time">${minsToTime(lap.val)}</div>`;
+          if (lap.avg) html += `<div class="arc-split-delta ${deltaClass}">${deltaSign}${minsToTime(Math.abs(delta))}</div>`;
+          else html += `<div class="arc-split-delta"></div>`;
+          html += `<div class="arc-split-rank">#${lap.lapRank}</div>`;
+          html += `</div>`;
+
+          // Show station between runs (smaller, dimmed)
+          if (i < stationOrder.length && i < runLaps.length - 1) {
+            const sk = stationOrder[i];
+            const sVal = r[sk];
+            if (sVal) {
+              html += `<div style="display:flex;align-items:center;gap:0.6rem;margin:0.1rem 0 0.1rem 0;font-size:0.7rem;color:var(--text2);opacity:0.6">`;
+              html += `<div style="width:85px;text-align:right;flex-shrink:0">${stationNames[sk]}</div>`;
+              html += `<div style="flex:1;height:1px;background:var(--border)"></div>`;
+              html += `<div style="width:60px;text-align:right;font-family:monospace">${minsToTime(sVal)}</div>`;
+              html += `<div style="width:56px"></div><div style="width:44px"></div>`;
+              html += `</div>`;
+            }
+          }
+        });
+
+        // Roxzone
+        if (r.roxzone) {
+          html += `<div style="margin-top:0.5rem;font-size:0.8rem;color:var(--text2)">Roxzone: <span style="color:var(--text);font-family:monospace">${minsToTime(r.roxzone)}</span></div>`;
+        }
+
+        html += `</div>`;
+      }
+
+      // 5. Radar chart
+      const workSplits = splitData.filter(s => s.name !== 'Run');
+      if (workSplits.length >= 3) {
+        const radarId = `radar-${rid}`;
+        html += `<div class="arc-radar-section">`;
+        html += `<canvas id="${radarId}" class="arc-radar-canvas" width="320" height="320"></canvas>`;
+        html += `</div>`;
+        // Queue radar drawing after DOM insertion
+        if (!window._radarQueue) window._radarQueue = [];
+        window._radarQueue.push({ id: radarId, splits: workSplits });
+      }
+
+      // 5. Genera Grafica buttons (preserved)
+      html += `<div class="arc-footer">
+        <select id="ig-format-${rid}" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:0.3rem 0.6rem;color:var(--text);font-size:0.8rem">
+          <option value="post">Post 1080x1080</option>
+          <option value="story">Story 1080x1920</option>
+        </select>
+        <button class="btn-generate" style="padding:0.3rem 0.8rem;font-size:0.8rem" onclick="generateAthleteGraphic('${rid}')">Genera Grafica</button>
+        <button class="btn-generate" id="btn-download-${rid}" style="display:none;background:var(--green);padding:0.3rem 0.8rem;font-size:0.8rem" onclick="downloadAthlPNG('${rid}')">Scarica PNG</button>
+      </div>
+      <div style="padding:0 1.5rem 1rem;text-align:center">
+        <canvas id="canvas-${rid}" style="display:none;max-width:100%;border:1px solid var(--border);border-radius:8px"></canvas>
+      </div>`;
+
+      // Store data for this specific race (preserved for graphic generation)
+      const splits = splitKeys.map(sk => ({ name: sk.name, val: r[sk.key] })).filter(s => s.val);
+      window._athleteData[rid] = {
+        name: displayName,
+        eventLocation: ev.location,
+        eventYear: ev.year,
+        eventSeason: ev.season,
+        division: r.division,
+        gender: r.gender,
+        total_time: r.total_time,
+        splits: splits,
+        nationality: r.nationality,
+        age_group: r.age_group,
+      };
+
       html += '</div>';
-      text += '\n';
     });
 
-    html += `<button class="btn-copy" style="position:static;margin-top:0.5rem" onclick="navigator.clipboard.writeText(this.dataset.text).then(()=>{this.textContent='Copiato!';setTimeout(()=>this.textContent='Copia profilo',1500)})" data-text="${escAttr(text)}">Copia profilo</button>`;
     html += '</div>';
   }
 
   area.innerHTML = html;
+
+  // Draw queued radar charts
+  if (window._radarQueue && window._radarQueue.length) {
+    window._radarQueue.forEach(({ id, splits }) => drawRadarChart(id, splits));
+    window._radarQueue = [];
+  }
+  // Draw queued histograms
+  if (window._histoQueue && window._histoQueue.length) {
+    window._histoQueue.forEach(h => drawHistogram(h.id, h.vals, h.athleteVal));
+    window._histoQueue = [];
+  }
+}
+
+function drawRadarChart(canvasId, splits) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W / 2, cy = H / 2;
+  const R = Math.min(cx, cy) - 40;
+  const n = splits.length;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Background rings
+  for (let ring = 1; ring <= 5; ring++) {
+    const rr = (ring / 5) * R;
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+      const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+      const x = cx + rr * Math.cos(angle);
+      const y = cy + rr * Math.sin(angle);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = 'rgba(46,51,71,0.8)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Axis lines + labels
+  for (let i = 0; i < n; i++) {
+    const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+    const x = cx + R * Math.cos(angle);
+    const y = cy + R * Math.sin(angle);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = 'rgba(46,51,71,0.5)';
+    ctx.stroke();
+
+    // Label
+    const lx = cx + (R + 22) * Math.cos(angle);
+    const ly = cy + (R + 22) * Math.sin(angle);
+    ctx.fillStyle = '#8b8fa3';
+    ctx.font = '11px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(splits[i].name, lx, ly);
+  }
+
+  // For radar: invert scale so faster = bigger
+  // Use the worst time in the field as baseline (0%), best time = 100%
+  function normalizeInverted(s) {
+    if (!s.best || !s.avg) return 0.5;
+    // worst = avg * 1.5 as a reasonable upper bound (or use actual max)
+    const worst = Math.max(s.val, s.avg) * 1.4;
+    const best = s.best;
+    if (worst === best) return 1;
+    const pct = 1 - ((s.val - best) / (worst - best));
+    return Math.max(0.08, Math.min(1, pct));
+  }
+
+  // Draw average polygon
+  const avgNorms = splits.map(s => {
+    if (!s.best || !s.avg) return 0.5;
+    const worst = Math.max(s.val, s.avg) * 1.4;
+    const best = s.best;
+    if (worst === best) return 1;
+    return Math.max(0.08, Math.min(1, 1 - ((s.avg - best) / (worst - best))));
+  });
+
+  ctx.beginPath();
+  avgNorms.forEach((norm, i) => {
+    const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+    const x = cx + R * norm * Math.cos(angle);
+    const y = cy + R * norm * Math.sin(angle);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(139,143,163,0.12)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(139,143,163,0.4)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 4]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Draw athlete polygon
+  const athleteNorms = splits.map(normalizeInverted);
+
+  ctx.beginPath();
+  athleteNorms.forEach((norm, i) => {
+    const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+    const x = cx + R * norm * Math.cos(angle);
+    const y = cy + R * norm * Math.sin(angle);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(200,255,0,0.15)';
+  ctx.fill();
+  ctx.strokeStyle = '#c8ff00';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Draw dots on athlete polygon
+  athleteNorms.forEach((norm, i) => {
+    const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+    const x = cx + R * norm * Math.cos(angle);
+    const y = cy + R * norm * Math.sin(angle);
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#c8ff00';
+    ctx.fill();
+  });
+
+  // Legend at bottom
+  ctx.fillStyle = '#c8ff00';
+  ctx.fillRect(W / 2 - 80, H - 18, 10, 10);
+  ctx.fillStyle = '#8b8fa3';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('Atleta', W / 2 - 66, H - 9);
+
+  ctx.strokeStyle = 'rgba(139,143,163,0.5)';
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.moveTo(W / 2 + 10, H - 13);
+  ctx.lineTo(W / 2 + 22, H - 13);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillText('Media', W / 2 + 26, H - 9);
 }
 
 function copyContent() {
@@ -705,6 +1186,1232 @@ function copyContent() {
 
 function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function escAttr(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// -- Instagram Graphic Generation --
+function renderGraphicControls(type) {
+  const defaultFormat = type === 'report' ? 'story' : 'post';
+  return `
+    <div style="margin-top:1rem;display:flex;gap:0.8rem;align-items:center;flex-wrap:wrap">
+      <label style="color:var(--text2);font-size:0.85rem">Formato:</label>
+      <select id="ig-format" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0.5rem 0.8rem;color:var(--text);font-size:0.85rem">
+        <option value="post" ${defaultFormat==='post'?'selected':''}>Post 1080x1080</option>
+        <option value="story" ${defaultFormat==='story'?'selected':''}>Story 1080x1920</option>
+      </select>
+      <button class="btn-generate" onclick="generateGraphic()">Genera Grafica</button>
+      <button class="btn-generate" id="btn-download-png" style="display:none;background:var(--green)" onclick="downloadPNG()">Scarica PNG</button>
+    </div>
+    <div style="margin-top:1rem;text-align:center">
+      <canvas id="ig-canvas" style="display:none;max-width:100%;border:1px solid var(--border);border-radius:8px"></canvas>
+    </div>`;
+}
+
+function drawHistogram(canvasId, vals, athleteVal) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || !vals.length) return;
+
+  // Set canvas size to container
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const W = rect.width;
+  const H = rect.height;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const sorted = [...vals].sort((a, b) => a - b);
+  const minV = sorted[0];
+  const maxV = sorted[sorted.length - 1];
+  const range = maxV - minV || 1;
+
+  // Create bins
+  const numBins = Math.min(40, Math.max(15, Math.floor(vals.length / 10)));
+  const binWidth = range / numBins;
+  const bins = new Array(numBins).fill(0);
+  vals.forEach(v => {
+    let idx = Math.floor((v - minV) / binWidth);
+    if (idx >= numBins) idx = numBins - 1;
+    bins[idx]++;
+  });
+  const maxBin = Math.max(...bins);
+
+  const padL = 0, padR = 0, padT = 4, padB = 4;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+  const barW = chartW / numBins;
+
+  // Draw bars
+  bins.forEach((count, i) => {
+    const barH = maxBin > 0 ? (count / maxBin) * chartH : 0;
+    const x = padL + i * barW;
+    const y = padT + chartH - barH;
+
+    // Color based on position relative to athlete
+    const binCenter = minV + (i + 0.5) * binWidth;
+    if (binCenter <= athleteVal) {
+      ctx.fillStyle = 'rgba(0,214,143,0.4)';  // faster = green
+    } else {
+      ctx.fillStyle = 'rgba(139,143,163,0.25)';  // slower = gray
+    }
+    ctx.fillRect(x + 0.5, y, barW - 1, barH);
+  });
+
+  // Athlete line
+  const athleteX = padL + ((athleteVal - minV) / range) * chartW;
+  ctx.strokeStyle = '#c8ff00';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(athleteX, padT);
+  ctx.lineTo(athleteX, padT + chartH);
+  ctx.stroke();
+
+  // Athlete dot
+  ctx.fillStyle = '#c8ff00';
+  ctx.beginPath();
+  ctx.arc(athleteX, padT + 6, 4, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Axis labels
+  const axisDiv = document.getElementById(canvasId + '-axis');
+  if (axisDiv) {
+    const nLabels = 5;
+    let labels = '';
+    for (let i = 0; i <= nLabels; i++) {
+      const v = minV + (range * i / nLabels);
+      labels += `<span>${minsToTime(v)}</span>`;
+    }
+    axisDiv.innerHTML = labels;
+  }
+}
+
+function generateGraphic() {
+  const format = document.getElementById('ig-format').value;
+  const W = 1080;
+  const H = format === 'story' ? 1920 : 1080;
+  const canvas = document.getElementById('ig-canvas');
+  canvas.width = W;
+  canvas.height = H;
+  canvas.style.display = 'block';
+  const ctx = canvas.getContext('2d');
+
+  const BG = '#0f1117', SURFACE = '#1a1d27', ACCENT = '#c8ff00', TEXT = '#e4e6ed', TEXT2 = '#8b8fa3';
+  const GOLD = '#ffd700', SILVER = '#c0c0c0', BRONZE = '#cd7f32', GREEN = '#00d68f', RED = '#ff6b6b';
+
+  // Background
+  ctx.fillStyle = BG;
+  ctx.fillRect(0, 0, W, H);
+
+  // Helper: draw rounded rect
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+
+  // Header
+  function drawHeader(title) {
+    // Top bar
+    ctx.fillStyle = SURFACE;
+    ctx.fillRect(0, 0, W, 100);
+    ctx.fillStyle = ACCENT;
+    ctx.font = 'bold 40px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('HY', 50, 65);
+    const hyW = ctx.measureText('HY').width;
+    ctx.fillStyle = TEXT;
+    ctx.fillText('ANALIZE', 50 + hyW, 65);
+    // Title
+    ctx.fillStyle = ACCENT;
+    ctx.font = 'bold 32px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(title, W / 2, 160);
+  }
+
+  // Footer
+  function drawFooter(extra) {
+    const fy = H - 60;
+    ctx.fillStyle = SURFACE;
+    ctx.fillRect(0, fy, W, 60);
+    ctx.fillStyle = TEXT2;
+    ctx.font = '22px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('@hyroxitaliacommunity' + (extra ? '  |  ' + extra : ''), W / 2, fy + 38);
+  }
+
+  const data = window._igData;
+  const athleteData = window._igAthleteData;
+
+  if (data && data.type === 'top10') {
+    drawTop10Graphic(ctx, W, H, data, drawHeader, drawFooter, roundRect, { BG, SURFACE, ACCENT, TEXT, TEXT2, GOLD, SILVER, BRONZE });
+  } else if (data && data.type === 'report') {
+    drawReportGraphic(ctx, W, H, data, drawHeader, drawFooter, roundRect, { BG, SURFACE, ACCENT, TEXT, TEXT2, GREEN, RED });
+  } else if (athleteData) {
+    drawAthleteGraphic(ctx, W, H, athleteData, drawHeader, drawFooter, roundRect, { BG, SURFACE, ACCENT, TEXT, TEXT2, GREEN, RED });
+  }
+
+  document.getElementById('btn-download-png').style.display = '';
+}
+
+function drawTop10Graphic(ctx, W, H, data, drawHeader, drawFooter, roundRect, C) {
+  const { event, top, subtitle } = data;
+  const title = `TOP 10 - ${event.location.toUpperCase()} ${event.year}`;
+  drawHeader(title);
+
+  // Subtitle
+  ctx.fillStyle = C.TEXT2;
+  ctx.font = '24px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(subtitle || 'Open', W / 2, 200);
+
+  const startY = 240;
+  const rowH = H === 1080 ? 72 : 140;
+  const padX = 60;
+
+  top.forEach((r, i) => {
+    const y = startY + i * rowH;
+    // Row background
+    ctx.fillStyle = i % 2 === 0 ? C.SURFACE : C.BG;
+    roundRect(padX - 10, y, W - 2 * padX + 20, rowH - 8, 10);
+    ctx.fill();
+
+    // Rank
+    const rank = i + 1;
+    ctx.textAlign = 'left';
+    ctx.font = 'bold 30px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
+    if (rank === 1) ctx.fillStyle = C.GOLD;
+    else if (rank === 2) ctx.fillStyle = C.SILVER;
+    else if (rank === 3) ctx.fillStyle = C.BRONZE;
+    else ctx.fillStyle = C.TEXT2;
+
+    const medal = rank === 1 ? '#1' : rank === 2 ? '#2' : rank === 3 ? '#3' : `#${rank}`;
+    ctx.fillText(medal, padX + 10, y + rowH / 2 + 4);
+
+    // Name
+    ctx.fillStyle = C.TEXT;
+    ctx.font = 'bold 26px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
+    const name = formatName(r.name);
+    const flag = r.nationality ? ` (${r.nationality})` : '';
+    ctx.fillText(name + flag, padX + 100, y + rowH / 2 + 4);
+
+    // Time
+    ctx.fillStyle = C.ACCENT;
+    ctx.font = 'bold 28px SF Mono, Cascadia Code, monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(minsToTime(r.total_time), W - padX - 10, y + rowH / 2 + 4);
+  });
+
+  const footerExtra = [data.div, data.gen].filter(Boolean).join(' | ');
+  drawFooter(footerExtra);
+}
+
+function drawReportGraphic(ctx, W, H, data, drawHeader, drawFooter, roundRect, C) {
+  const { event, n, times, avg, median, p10, p90, avgSplits, slowest, fastest, subtitle } = data;
+  const title = `REPORT - ${event.location.toUpperCase()} ${event.year}`;
+  drawHeader(title);
+
+  ctx.fillStyle = C.TEXT2;
+  ctx.font = '24px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(subtitle || 'Tutte le divisioni', W / 2, 200);
+
+  const padX = 60;
+  let y = 240;
+
+  // Stats blocks
+  const stats = [
+    { label: 'PARTECIPANTI', value: n.toLocaleString() },
+    { label: 'MIGLIOR TEMPO', value: minsToTime(times[0]) },
+    { label: 'TEMPO MEDIO', value: minsToTime(avg) },
+    { label: 'MEDIANA', value: minsToTime(median) },
+  ];
+  if (p10) stats.push({ label: 'TOP 10%', value: minsToTime(p10) });
+  if (p90) stats.push({ label: 'TOP 90%', value: minsToTime(p90) });
+
+  const cols = Math.min(stats.length, 3);
+  const boxW = (W - 2 * padX - (cols - 1) * 15) / cols;
+  const boxH = 90;
+
+  stats.forEach((s, i) => {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const bx = padX + col * (boxW + 15);
+    const by = y + row * (boxH + 15);
+
+    ctx.fillStyle = C.SURFACE;
+    roundRect(bx, by, boxW, boxH, 10);
+    ctx.fill();
+
+    ctx.fillStyle = C.TEXT2;
+    ctx.font = '16px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(s.label, bx + boxW / 2, by + 30);
+
+    ctx.fillStyle = C.ACCENT;
+    ctx.font = 'bold 30px SF Mono, Cascadia Code, monospace';
+    ctx.fillText(s.value, bx + boxW / 2, by + 68);
+  });
+
+  const statRows = Math.ceil(stats.length / cols);
+  y += statRows * (boxH + 15) + 30;
+
+  // Bar chart - average split times
+  if (avgSplits.length) {
+    ctx.fillStyle = C.TEXT;
+    ctx.font = 'bold 22px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('TEMPI MEDI PER STAZIONE', padX, y);
+    y += 30;
+
+    const sorted = [...avgSplits].sort((a, b) => b.avg - a.avg);
+    const maxVal = sorted[0].avg;
+    const barMaxW = W - 2 * padX - 180;
+    const barH = H === 1920 ? 55 : 40;
+    const barGap = H === 1920 ? 12 : 8;
+
+    sorted.forEach(s => {
+      const barW = (s.avg / maxVal) * barMaxW;
+      let barColor = C.TEXT2;
+      if (s === slowest) barColor = '#ff6b6b';
+      else if (s === fastest) barColor = C.GREEN;
+
+      // Label
+      ctx.fillStyle = C.TEXT;
+      ctx.font = '18px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(s.name, padX, y + barH / 2 + 6);
+
+      // Bar
+      ctx.fillStyle = barColor;
+      roundRect(padX + 150, y, barW, barH, 6);
+      ctx.fill();
+
+      // Time label on bar
+      ctx.fillStyle = C.BG;
+      ctx.font = 'bold 16px SF Mono, Cascadia Code, monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(minsToTime(s.avg), padX + 158, y + barH / 2 + 6);
+
+      y += barH + barGap;
+    });
+
+    // Legend
+    y += 10;
+    ctx.font = '16px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#ff6b6b';
+    ctx.fillRect(padX, y, 14, 14);
+    ctx.fillStyle = C.TEXT2;
+    ctx.fillText('Piu lenta', padX + 22, y + 12);
+    ctx.fillStyle = C.GREEN;
+    ctx.fillRect(padX + 140, y, 14, 14);
+    ctx.fillStyle = C.TEXT2;
+    ctx.fillText('Piu veloce', padX + 162, y + 12);
+  }
+
+  drawFooter([data.div, data.gen].filter(Boolean).join(' | '));
+}
+
+function drawAthleteGraphic(ctx, W, H, data, drawHeader, drawFooter, roundRect, C) {
+  const { name, races, best } = data;
+  drawHeader(name.toUpperCase());
+
+  const padX = 60;
+  let y = 210;
+
+  // Best time big
+  ctx.fillStyle = C.TEXT2;
+  ctx.font = '22px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('MIGLIOR TEMPO', W / 2, y);
+  y += 50;
+  ctx.fillStyle = C.ACCENT;
+  ctx.font = 'bold 60px SF Mono, Cascadia Code, monospace';
+  ctx.fillText(best ? minsToTime(best.total_time) : '--:--', W / 2, y);
+  y += 30;
+
+  // Races count
+  ctx.fillStyle = C.TEXT2;
+  ctx.font = '22px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
+  ctx.fillText(`${races.length} gara/e disputata/e`, W / 2, y + 30);
+  y += 70;
+
+  // Best race splits as bars
+  if (best) {
+    const splits = [
+      { name: 'SkiErg', val: best.skiErg },
+      { name: 'Sled Push', val: best.sledPush },
+      { name: 'Sled Pull', val: best.sledPull },
+      { name: 'Burpee BJ', val: best.burpee },
+      { name: 'Row', val: best.row },
+      { name: 'Farmers', val: best.farmersCarry },
+      { name: 'Lunges', val: best.lunges },
+      { name: 'Wall Balls', val: best.wallBalls },
+    ].filter(s => s.val);
+
+    if (splits.length) {
+      ctx.fillStyle = C.TEXT;
+      ctx.font = 'bold 22px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('SPLIT MIGLIOR GARA', padX, y);
+      y += 30;
+
+      const bestSplit = splits.reduce((a, b) => a.val < b.val ? a : b);
+      const worstSplit = splits.reduce((a, b) => a.val > b.val ? a : b);
+      const maxVal = worstSplit.val;
+      const barMaxW = W - 2 * padX - 180;
+      const barH = H === 1920 ? 55 : 45;
+      const barGap = H === 1920 ? 12 : 8;
+
+      splits.forEach(s => {
+        const barW = Math.max((s.val / maxVal) * barMaxW, 20);
+        let barColor = C.TEXT2;
+        if (s === bestSplit) barColor = C.GREEN;
+        else if (s === worstSplit) barColor = '#ff6b6b';
+
+        ctx.fillStyle = C.TEXT;
+        ctx.font = '18px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(s.name, padX, y + barH / 2 + 6);
+
+        ctx.fillStyle = barColor;
+        roundRect(padX + 150, y, barW, barH, 6);
+        ctx.fill();
+
+        ctx.fillStyle = C.BG;
+        ctx.font = 'bold 16px SF Mono, Cascadia Code, monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText(minsToTime(s.val), padX + 158, y + barH / 2 + 6);
+
+        y += barH + barGap;
+      });
+
+      // Legend
+      y += 10;
+      ctx.font = '16px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillStyle = C.GREEN;
+      ctx.fillRect(padX, y, 14, 14);
+      ctx.fillStyle = C.TEXT2;
+      ctx.fillText('Punto forte', padX + 22, y + 12);
+      ctx.fillStyle = '#ff6b6b';
+      ctx.fillRect(padX + 150, y, 14, 14);
+      ctx.fillStyle = C.TEXT2;
+      ctx.fillText('Punto debole', padX + 172, y + 12);
+    }
+  }
+
+  drawFooter('');
+}
+
+function downloadPNG() {
+  const canvas = document.getElementById('ig-canvas');
+  if (!canvas) return;
+  const format = document.getElementById('ig-format').value;
+  const link = document.createElement('a');
+  link.download = `hyanalize_${format}_${Date.now()}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+
+function generateAthleteGraphic(rid) {
+  const data = window._athleteData && window._athleteData[rid];
+  if (!data) return;
+  const format = document.getElementById(`ig-format-${rid}`).value;
+  const W = 1080;
+  const H = format === 'story' ? 1920 : 1080;
+  const canvas = document.getElementById(`canvas-${rid}`);
+  canvas.width = W; canvas.height = H; canvas.style.display = 'block';
+  const ctx = canvas.getContext('2d');
+  const C = { BG:'#0f1117', SURFACE:'#1a1d27', ACCENT:'#c8ff00', TEXT:'#e4e6ed', TEXT2:'#8b8fa3', GREEN:'#00d68f', RED:'#ff6b6b' };
+
+  ctx.fillStyle = C.BG; ctx.fillRect(0, 0, W, H);
+
+  function roundRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+
+  // Header
+  ctx.fillStyle = C.SURFACE; ctx.fillRect(0,0,W,100);
+  ctx.fillStyle = C.ACCENT; ctx.font = 'bold 40px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText('HY', 50, 65);
+  const hyW = ctx.measureText('HY').width;
+  ctx.fillStyle = C.TEXT; ctx.fillText('ANALIZE', 50+hyW, 65);
+
+  // Footer
+  const fy = H-60;
+  ctx.fillStyle = C.SURFACE; ctx.fillRect(0,fy,W,60);
+  ctx.fillStyle = C.TEXT2; ctx.font = '22px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('@hyroxitaliacommunity', W/2, fy+38);
+
+  const padX = 60;
+  let y = 130;
+
+  // Athlete name
+  ctx.fillStyle = C.ACCENT; ctx.font = 'bold 36px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText(data.name.toUpperCase(), W/2, y); y += 50;
+
+  // Event name
+  const eventTitle = `${(data.eventLocation || '').toUpperCase()} ${data.eventYear} — Season ${data.eventSeason}`;
+  ctx.fillStyle = C.TEXT; ctx.font = '26px sans-serif';
+  ctx.fillText(eventTitle, W/2, y); y += 35;
+
+  // Division / Gender
+  ctx.fillStyle = C.TEXT2; ctx.font = '22px sans-serif';
+  ctx.fillText([data.division, data.gender, data.age_group].filter(Boolean).join(' | '), W/2, y); y += 60;
+
+  // Total time big
+  ctx.fillStyle = C.TEXT2; ctx.font = '22px sans-serif';
+  ctx.fillText('TEMPO TOTALE', W/2, y); y += 50;
+  ctx.fillStyle = C.ACCENT; ctx.font = 'bold 70px monospace';
+  ctx.fillText(minsToTime(data.total_time), W/2, y); y += 70;
+
+  // Splits as bars
+  const splits = data.splits || [];
+  if (splits.length) {
+    ctx.fillStyle = C.TEXT; ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText('SPLIT', padX, y); y += 30;
+
+    const bestSplit = splits.reduce((a, b) => a.val < b.val ? a : b);
+    const worstSplit = splits.reduce((a, b) => a.val > b.val ? a : b);
+    const maxVal = worstSplit.val;
+    const barMaxW = W - 2*padX - 180;
+    const barH = format === 'story' ? 60 : 45;
+    const barGap = format === 'story' ? 14 : 8;
+
+    splits.forEach(s => {
+      const barW = Math.max((s.val / maxVal) * barMaxW, 20);
+      let barColor = C.TEXT2;
+      if (s === bestSplit) barColor = C.GREEN;
+      else if (s === worstSplit) barColor = C.RED;
+
+      ctx.fillStyle = C.TEXT; ctx.font = '18px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText(s.name, padX, y + barH/2 + 6);
+
+      ctx.fillStyle = barColor;
+      roundRect(padX+150, y, barW, barH, 6); ctx.fill();
+
+      ctx.fillStyle = C.BG; ctx.font = 'bold 16px monospace'; ctx.textAlign = 'left';
+      ctx.fillText(minsToTime(s.val), padX+158, y + barH/2 + 6);
+
+      y += barH + barGap;
+    });
+
+    // Legend
+    y += 10;
+    ctx.font = '16px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillStyle = C.GREEN; ctx.fillRect(padX, y, 14, 14);
+    ctx.fillStyle = C.TEXT2; ctx.fillText('Punto forte', padX+22, y+12);
+    ctx.fillStyle = C.RED; ctx.fillRect(padX+150, y, 14, 14);
+    ctx.fillStyle = C.TEXT2; ctx.fillText('Punto debole', padX+172, y+12);
+  }
+
+  document.getElementById(`btn-download-${rid}`).style.display = '';
+}
+
+function downloadAthlPNG(aid) {
+  const canvas = document.getElementById(`canvas-${aid}`);
+  if (!canvas) return;
+  const format = document.getElementById(`ig-format-${aid}`).value;
+  const link = document.createElement('a');
+  const aData = window._athleteData && window._athleteData[aid];
+  link.download = `hyanalize_${aData ? aData.name : 'atleta'}_${format}.png`.replace(/\s+/g, '_');
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+
+// =============================================
+// CROSS-EVENT INTELLIGENCE
+// =============================================
+
+async function crossSearch() {
+  const search = (document.getElementById('cross-athlete-search')?.value || '').toLowerCase().trim();
+  if (search.length < 3) {
+    document.getElementById('cross-area').innerHTML = '<div class="loading-msg">Inserisci almeno 3 caratteri</div>';
+    return;
+  }
+
+  const area = document.getElementById('cross-area');
+  const total = DATA.events.length;
+  let done = 0;
+  area.innerHTML = '<div class="loading-msg" id="cross-progress">Cerco in tutte le gare... 0/' + total + '</div>';
+
+  const found = [];
+  const BATCH = 10;
+  for (let i = 0; i < total; i += BATCH) {
+    const batch = DATA.events.slice(i, i + BATCH);
+    const promises = batch.map(async event => {
+      try {
+        const results = await loadContentRace(event.key);
+        const words = search.split(/\s+/);
+        const matches = results.filter(r => {
+          const name = (r.name || '').toLowerCase();
+          return words.every(w => name.includes(w));
+        });
+        if (matches.length) {
+          matches.forEach(m => found.push({ ...m, event }));
+        }
+      } catch (err) { /* skip */ }
+      done++;
+    });
+    await Promise.all(promises);
+    const prog = document.getElementById('cross-progress');
+    if (prog) prog.textContent = 'Cerco in tutte le gare... ' + done + '/' + total + ' (' + found.length + ' trovati)';
+  }
+
+  if (!found.length) {
+    area.innerHTML = '<div class="loading-msg">Atleta non trovato in nessuna gara</div>';
+    return;
+  }
+
+  // All found results belong to the searched athlete (search already filtered by name match).
+  // In doubles, the name field contains both partners (e.g. "Eugenio Bianchi Beau Wills"),
+  // so we take ALL results rather than grouping by exact name.
+  const allRaces = found;
+
+  // Find the most common solo name for display
+  const nameCounts = {};
+  found.forEach(r => { nameCounts[r.name] = (nameCounts[r.name]||0) + 1; });
+  const mainName = Object.entries(nameCounts).sort((a,b) => b[1] - a[1])[0][0];
+  const displayName = formatName(mainName);
+
+  // Group by division
+  const byDiv = {};
+  allRaces.forEach(r => {
+    const div = r.division || 'unknown';
+    if (!byDiv[div]) byDiv[div] = [];
+    byDiv[div].push(r);
+  });
+
+  const divKeys = Object.keys(byDiv).sort((a, b) => byDiv[b].length - byDiv[a].length);
+  const divLabels = { open: 'Open (Singles)', doubles: 'Doubles', pro: 'Pro', pro_doubles: 'Pro Doubles' };
+
+  // Store data globally for division switching
+  window._crossData = { name: displayName, byDiv, divKeys, divLabels };
+
+  // Show division selector + first division analysis
+  let selectorHtml = '<div style="margin-bottom:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center">';
+  selectorHtml += '<span style="color:var(--text2);font-size:0.85rem">Divisione:</span>';
+  divKeys.forEach((d, i) => {
+    const label = divLabels[d] || d;
+    const count = byDiv[d].length;
+    const cls = i === 0 ? 'tab active' : 'tab';
+    selectorHtml += '<div class="' + cls + '" data-cross-div="' + d + '" onclick="switchCrossDiv(\'' + d + '\')" style="font-size:0.82rem;padding:0.4rem 0.8rem">' + label + ' (' + count + ')</div>';
+  });
+  selectorHtml += '</div>';
+  selectorHtml += '<div id="cross-div-content"></div>';
+
+  area.innerHTML = selectorHtml;
+  switchCrossDiv(divKeys[0]);
+}
+
+function switchCrossDiv(div) {
+  // Update active tab
+  document.querySelectorAll('[data-cross-div]').forEach(t => {
+    t.classList.toggle('active', t.dataset.crossDiv === div);
+  });
+
+  const { name, byDiv } = window._crossData;
+  const races = byDiv[div];
+
+  // Sort races by date (season, then year)
+  const sorted = [...races].sort((a, b) => {
+    const sa = a.event.season, sb = b.event.season;
+    if (sa !== sb) return sa - sb;
+    return (a.event.year || 0) - (b.event.year || 0);
+  });
+
+  renderCrossAnalysis(name, sorted, div);
+}
+
+function renderCrossAnalysis(name, races, divFilter) {
+  const area = document.getElementById('cross-div-content');
+  const stationKeys = [
+    { key: 'skiErg', name: 'SkiErg' },
+    { key: 'sledPush', name: 'Sled Push' },
+    { key: 'sledPull', name: 'Sled Pull' },
+    { key: 'burpee', name: 'Burpee BJ' },
+    { key: 'row', name: 'Row' },
+    { key: 'farmersCarry', name: 'Farmers' },
+    { key: 'lunges', name: 'Lunges' },
+    { key: 'wallBalls', name: 'Wall Balls' },
+  ];
+
+  // ===== 1. Summary cards =====
+  const bestRace = races.filter(r => r.total_time).sort((a, b) => a.total_time - b.total_time)[0];
+  const latestRace = races[races.length - 1];
+  const firstRace = races.find(r => r.total_time);
+  const improvement = firstRace && latestRace && firstRace.total_time && latestRace.total_time
+    ? firstRace.total_time - latestRace.total_time : null;
+
+  // Global percentile: count across ALL cached races for same division+gender
+  let globalRank = null, globalTotal = 0;
+  const refDiv = divFilter || bestRace?.division;
+  const refGen = bestRace?.gender;
+  const bestTime = bestRace?.total_time;
+  if (refDiv && refGen && bestTime) {
+    const allTimes = [];
+    for (const key of Object.keys(raceCache)) {
+      raceCache[key].forEach(r => {
+        if (r.division === refDiv && r.gender === refGen && r.total_time) {
+          allTimes.push(r.total_time);
+        }
+      });
+    }
+    globalTotal = allTimes.length;
+    globalRank = allTimes.filter(t => t < bestTime).length + 1;
+  }
+
+  const divLabels = { open: 'Open (Singles)', doubles: 'Doubles', pro: 'Pro', pro_doubles: 'Pro Doubles' };
+  const divLabel = divLabels[refDiv] || refDiv || '';
+  let html = '<h2 style="color:var(--accent);margin-bottom:1rem;font-size:1.3rem">' + name + ' — ' + divLabel + '</h2>';
+
+  html += '<div class="cross-summary">';
+  html += '<div class="cross-card"><h3>Gare analizzate</h3><div class="big">' + races.length + '</div><div class="sub">' + new Set(races.map(r => r.event.season)).size + ' stagioni</div></div>';
+  if (bestRace) html += '<div class="cross-card"><h3>Personal Best</h3><div class="big">' + minsToTime(bestRace.total_time) + '</div><div class="sub">' + bestRace.event.location + ' ' + bestRace.event.year + '</div></div>';
+  if (improvement !== null) {
+    const impSign = improvement > 0 ? '-' : '+';
+    const impColor = improvement > 0 ? 'var(--green)' : '#ff6b6b';
+    html += '<div class="cross-card"><h3>Progresso totale</h3><div class="big" style="color:' + impColor + '">' + impSign + minsToTime(Math.abs(improvement)) + '</div><div class="sub">dalla prima all\'ultima gara</div></div>';
+  }
+  if (globalRank && globalTotal) {
+    const globalPct = ((globalRank / globalTotal) * 100).toFixed(1);
+    html += '<div class="cross-card"><h3>Classifica globale</h3><div class="big">#' + globalRank + '</div><div class="sub">su ' + globalTotal.toLocaleString() + ' risultati (' + refDiv + ' ' + refGen + ') — top ' + globalPct + '%</div></div>';
+  }
+  html += '</div>';
+
+  // ===== 2. Progression chart (total time over events) =====
+  const progressionId = 'cross-progression-canvas';
+  html += '<div class="cross-section">';
+  html += '<h3><span class="icon">&#x1F4C8;</span> Progressione tempo totale</h3>';
+  html += '<div class="cross-chart-wrap"><canvas id="' + progressionId + '"></canvas></div>';
+  html += '</div>';
+
+  // ===== 3. Split Evolution (HTML table) =====
+  const splitEvoId = 'cross-splitevo-container';
+  html += '<div class="cross-section">';
+  html += '<h3><span class="icon">&#x1F3CB;</span> Evoluzione stazioni</h3>';
+  html += '<div id="' + splitEvoId + '"></div>';
+  html += '</div>';
+
+  // ===== 4. Personal Best per stazione =====
+  html += '<div class="cross-section">';
+  html += '<h3><span class="icon">&#x1F3C6;</span> Personal Best per stazione</h3>';
+  html += '<div class="cross-pb-grid">';
+
+  // PB for total time
+  if (bestRace) {
+    html += '<div class="cross-pb-item"><div class="station">Total</div><div class="pb-time">' + minsToTime(bestRace.total_time) + '</div><div class="pb-where">' + bestRace.event.location + ' ' + bestRace.event.year + '</div></div>';
+  }
+
+  stationKeys.forEach(sk => {
+    const withVal = races.filter(r => r[sk.key] && !isNaN(r[sk.key]));
+    if (!withVal.length) return;
+    const best = withVal.reduce((a, b) => a[sk.key] < b[sk.key] ? a : b);
+    html += '<div class="cross-pb-item"><div class="station">' + sk.name + '</div><div class="pb-time">' + minsToTime(best[sk.key]) + '</div><div class="pb-where">' + best.event.location + ' ' + best.event.year + '</div></div>';
+  });
+
+  // PB for run_time
+  const withRun = races.filter(r => r.run_time && !isNaN(r.run_time));
+  if (withRun.length) {
+    const bestRun = withRun.reduce((a, b) => a.run_time < b.run_time ? a : b);
+    html += '<div class="cross-pb-item"><div class="station">Run</div><div class="pb-time">' + minsToTime(bestRun.run_time) + '</div><div class="pb-where">' + bestRun.event.location + ' ' + bestRun.event.year + '</div></div>';
+  }
+  html += '</div></div>';
+
+  // ===== 5. Persistent weakness analysis =====
+  html += '<div class="cross-section">';
+  html += '<h3><span class="icon">&#x1F3AF;</span> Analisi punti deboli persistenti</h3>';
+  html += '<p style="color:var(--text2);font-size:0.82rem;margin-bottom:1rem">Percentile medio per stazione su tutte le gare. Piu basso = piu forte.</p>';
+
+  const avgPercentiles = [];
+  stationKeys.forEach(sk => {
+    const pctiles = [];
+    races.forEach(r => {
+      if (!r[sk.key] || isNaN(r[sk.key])) return;
+      const allResults = raceCache[r.event.key] || [];
+      const peers = allResults.filter(p => p.division === r.division && p.gender === r.gender && p[sk.key] && !isNaN(p[sk.key]));
+      if (!peers.length) return;
+      const sorted = peers.map(p => p[sk.key]).sort((a, b) => a - b);
+      const rank = sorted.filter(v => v < r[sk.key]).length + 1;
+      pctiles.push((rank / sorted.length) * 100);
+    });
+    if (pctiles.length) {
+      const avgPct = pctiles.reduce((a, b) => a + b, 0) / pctiles.length;
+      avgPercentiles.push({ name: sk.name, key: sk.key, avgPct, count: pctiles.length });
+    }
+  });
+
+  avgPercentiles.sort((a, b) => a.avgPct - b.avgPct);
+
+  avgPercentiles.forEach(s => {
+    const color = s.avgPct <= 25 ? '#00d68f' : s.avgPct <= 50 ? '#c8ff00' : s.avgPct <= 75 ? '#ffa500' : '#ff6b6b';
+    const label = s.avgPct <= 25 ? 'Forte' : s.avgPct <= 50 ? 'Buono' : s.avgPct <= 75 ? 'Da migliorare' : 'Punto debole';
+    html += '<div class="cross-weakness-row">';
+    html += '<div class="cross-weakness-name">' + s.name + '</div>';
+    html += '<div class="cross-weakness-bar-wrap"><div class="cross-weakness-bar" style="width:' + s.avgPct.toFixed(1) + '%;background:' + color + '"></div></div>';
+    html += '<div class="cross-weakness-pct" style="color:' + color + '">top ' + s.avgPct.toFixed(1) + '%</div>';
+    html += '</div>';
+  });
+
+  // Training priority recommendation
+  if (avgPercentiles.length) {
+    const worst = avgPercentiles[avgPercentiles.length - 1];
+    const best = avgPercentiles[0];
+    html += '<div style="margin-top:1rem;padding:1rem;background:var(--surface2);border-radius:8px;font-size:0.85rem">';
+    html += '<strong style="color:var(--accent)">Raccomandazione allenamento:</strong> ';
+    html += 'Concentrati su <strong style="color:#ff6b6b">' + worst.name + '</strong> (top ' + worst.avgPct.toFixed(0) + '%) — hai il massimo margine di miglioramento. ';
+    html += 'Il tuo punto di forza e <strong style="color:#00d68f">' + best.name + '</strong> (top ' + best.avgPct.toFixed(0) + '%).';
+    html += '</div>';
+  }
+  html += '</div>';
+
+  // ===== 6. Fatigue Index (run lap decay) =====
+  const latestWithLaps = [...races].reverse().find(r => r.run1 && r.run8);
+  if (latestWithLaps) {
+    html += '<div class="cross-section">';
+    html += '<h3><span class="icon">&#x1F4A8;</span> Fatigue Index — ' + latestWithLaps.event.location + ' ' + latestWithLaps.event.year + '</h3>';
+
+    const laps = [];
+    for (let i = 1; i <= 8; i++) {
+      const v = latestWithLaps['run' + i];
+      if (v && !isNaN(v)) laps.push({ num: i, val: v });
+    }
+
+    if (laps.length >= 2) {
+      const firstLap = laps[0].val;
+      const lastLap = laps[laps.length - 1].val;
+      const fatigueIdx = ((lastLap / firstLap) - 1) * 100;
+      const maxLap = Math.max(...laps.map(l => l.val));
+
+      html += '<div style="display:flex;gap:2rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap">';
+      html += '<div><span style="color:var(--text2);font-size:0.82rem">Fatigue Index:</span> ';
+      const fiColor = fatigueIdx <= 5 ? '#00d68f' : fatigueIdx <= 15 ? '#c8ff00' : fatigueIdx <= 25 ? '#ffa500' : '#ff6b6b';
+      const fiLabel = fatigueIdx <= 5 ? 'Eccellente' : fatigueIdx <= 15 ? 'Buono' : fatigueIdx <= 25 ? 'Da migliorare' : 'Critico';
+      html += '<strong style="color:' + fiColor + ';font-size:1.1rem">+' + fatigueIdx.toFixed(1) + '% (' + fiLabel + ')</strong></div>';
+      html += '<div style="font-size:0.8rem;color:var(--text2)">Run 1: ' + minsToTime(firstLap) + ' → Run ' + laps.length + ': ' + minsToTime(lastLap) + '</div>';
+      html += '</div>';
+
+      html += '<div class="cross-fatigue-laps" style="margin-bottom:1.5rem">';
+      laps.forEach(l => {
+        const pct = (l.val / maxLap) * 100;
+        const isBest = l.val === Math.min(...laps.map(x => x.val));
+        const isWorst = l.val === maxLap;
+        const color = isBest ? '#00d68f' : isWorst ? '#ff6b6b' : 'var(--accent)';
+        html += '<div class="cross-fatigue-bar" style="height:' + pct + '%;background:' + color + '">';
+        html += '<div class="val">' + minsToTime(l.val) + '</div>';
+        html += '<div class="label">R' + l.num + '</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+
+      // Fatigue trend across events
+      const fatigueOverTime = [];
+      races.forEach(r => {
+        if (r.run1 && r.run8 && !isNaN(r.run1) && !isNaN(r.run8)) {
+          const fi = ((r.run8 / r.run1) - 1) * 100;
+          fatigueOverTime.push({ event: r.event, fi });
+        }
+      });
+
+      if (fatigueOverTime.length > 1) {
+        const fatigueTrendId = 'cross-fatigue-trend';
+        html += '<div style="margin-top:0.5rem"><div style="font-size:0.8rem;color:var(--text2);margin-bottom:0.5rem">Fatigue Index nel tempo</div>';
+        html += '<div class="cross-chart-wrap"><canvas id="' + fatigueTrendId + '"></canvas></div></div>';
+        // We'll draw this after DOM insertion
+        window._fatigueTrendData = fatigueOverTime;
+      }
+    }
+    html += '</div>';
+  }
+
+  // ===== 7. Target gap analysis =====
+  if (bestRace && bestRace.total_time) {
+    html += '<div class="cross-section">';
+    html += '<h3><span class="icon">&#x1F3AF;</span> Gap Analysis — Obiettivo tempo</h3>';
+
+    // Calculate target options based on current best
+    const currentBest = bestRace.total_time;
+    const targets = [];
+    // Round down to nearest 10 minutes
+    const roundedMin = Math.floor(currentBest / 10) * 10;
+    if (roundedMin < currentBest) targets.push(roundedMin);
+    if (roundedMin - 10 > 0) targets.push(roundedMin - 10);
+    // Also add 5-minute steps
+    const five = Math.floor(currentBest / 5) * 5;
+    if (five < currentBest && !targets.includes(five)) targets.push(five);
+
+    targets.sort((a, b) => b - a);
+    const target = targets[0] || currentBest - 5;
+    const gap = currentBest - target;
+
+    html += '<div style="margin-bottom:1rem">';
+    html += '<span style="color:var(--text2);font-size:0.85rem">Attuale: </span><strong style="font-family:monospace">' + minsToTime(currentBest) + '</strong>';
+    html += '<span style="color:var(--accent);margin:0 0.5rem">→</span>';
+    html += '<span style="color:var(--text2);font-size:0.85rem">Obiettivo: </span><strong style="font-family:monospace;color:var(--green)">' + minsToTime(target) + '</strong>';
+    html += '<span style="color:var(--text2);font-size:0.85rem;margin-left:0.5rem">(da recuperare: ' + minsToTime(gap) + ')</span>';
+    html += '</div>';
+
+    // Distribute gap across stations based on weakness
+    if (avgPercentiles.length) {
+      html += '<div style="font-size:0.82rem;color:var(--text2);margin-bottom:0.8rem">Dove recuperare tempo (basato sulle tue debolezze):</div>';
+
+      // Weight by percentile: weaker stations get more of the gap
+      const totalWeight = avgPercentiles.reduce((s, p) => s + p.avgPct, 0);
+      avgPercentiles.sort((a, b) => b.avgPct - a.avgPct);
+
+      avgPercentiles.forEach(s => {
+        const weight = s.avgPct / totalWeight;
+        const stationGap = gap * weight;
+        const currentAvg = races.map(r => r[s.key]).filter(v => v && !isNaN(v));
+        const currentBestStation = currentAvg.length ? Math.min(...currentAvg) : null;
+        if (!currentBestStation) return;
+        const targetStation = currentBestStation - stationGap;
+
+        html += '<div class="cross-target-row">';
+        html += '<div class="cross-target-station">' + s.name + '</div>';
+        html += '<div class="cross-target-current">' + minsToTime(currentBestStation) + '</div>';
+        html += '<div class="cross-target-arrow">→</div>';
+        html += '<div class="cross-target-needed">' + minsToTime(Math.max(targetStation, 0)) + '</div>';
+        html += '<div class="cross-target-delta">(-' + minsToTime(stationGap) + ' | peso ' + (weight * 100).toFixed(0) + '%)</div>';
+        html += '</div>';
+      });
+    }
+    html += '</div>';
+  }
+
+  // ===== 8. Global ranking detail =====
+  if (globalRank && globalTotal) {
+    html += '<div class="cross-section">';
+    html += '<h3><span class="icon">&#x1F30D;</span> Classifica globale (' + refDiv + ' ' + refGen + ')</h3>';
+    const pct = ((globalRank / globalTotal) * 100);
+    html += '<div class="cross-global-rank">';
+    html += '<div class="rank-num">#' + globalRank + '</div>';
+    html += '<div class="rank-detail">';
+    html += 'Su <strong>' + globalTotal.toLocaleString() + '</strong> risultati caricati<br>';
+    html += 'Top <strong>' + pct.toFixed(1) + '%</strong> mondiale<br>';
+    html += 'Miglior tempo: <strong>' + minsToTime(bestTime) + '</strong>';
+    html += '</div></div>';
+    html += '<p style="color:var(--text2);font-size:0.75rem;margin-top:0.5rem">Nota: basato sulle gare caricate in cache (' + Object.keys(raceCache).length + ' gare). Per dati completi, cerca prima l\'atleta per caricare tutte le gare.</p>';
+    html += '</div>';
+  }
+
+  // ===== Render =====
+  area.innerHTML = html;
+
+  // Draw progression chart
+  drawProgressionChart(progressionId, races);
+  // Render split evolution table
+  renderSplitEvoHTML(splitEvoId, races, stationKeys);
+  // Draw fatigue trend if data exists
+  if (window._fatigueTrendData) {
+    drawFatigueTrend('cross-fatigue-trend', window._fatigueTrendData);
+    window._fatigueTrendData = null;
+  }
+}
+
+function setupHiDPICanvas(canvas, cssW, cssH) {
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = cssW * dpr;
+  canvas.height = cssH * dpr;
+  canvas.style.width = cssW + 'px';
+  canvas.style.height = cssH + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  return { ctx, W: cssW, H: cssH };
+}
+
+function drawProgressionChart(canvasId, races) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+
+  const withTime = races.filter(r => r.total_time);
+  const cssW = canvas.parentElement.clientWidth || 800;
+  const cssH = Math.max(300, Math.min(400, cssW * 0.4));
+  const { ctx, W, H } = setupHiDPICanvas(canvas, cssW, cssH);
+
+  if (withTime.length < 2) {
+    ctx.fillStyle = '#8b8fa3'; ctx.font = '14px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Servono almeno 2 gare per il grafico di progressione', W/2, H/2);
+    return;
+  }
+
+  const padL = 75, padR = 30, padT = 40, padB = 80;
+  const chartW = W - padL - padR, chartH = H - padT - padB;
+
+  const times = withTime.map(r => r.total_time);
+  const minT = Math.min(...times) - 2;
+  const maxT = Math.max(...times) + 2;
+
+  // Background
+  ctx.fillStyle = '#1a1d27';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid + Y axis labels
+  ctx.strokeStyle = '#2e3347'; ctx.lineWidth = 1;
+  const steps = 5;
+  for (let i = 0; i <= steps; i++) {
+    const y = padT + (chartH / steps) * i;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+    const tVal = maxT - (maxT - minT) * (i / steps);
+    ctx.fillStyle = '#8b8fa3'; ctx.font = '12px monospace'; ctx.textAlign = 'right';
+    ctx.fillText(minsToTime(tVal), padL - 10, y + 4);
+  }
+
+  // Points coords
+  const points = withTime.map((r, i) => ({
+    x: padL + (withTime.length === 1 ? chartW/2 : (i / (withTime.length - 1)) * chartW),
+    y: padT + ((maxT - r.total_time) / (maxT - minT)) * chartH,
+    r: r
+  }));
+
+  // Area fill under line
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, padT + chartH);
+  points.forEach(p => ctx.lineTo(p.x, p.y));
+  ctx.lineTo(points[points.length-1].x, padT + chartH);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0, padT, 0, padT + chartH);
+  grad.addColorStop(0, 'rgba(200,255,0,0.15)');
+  grad.addColorStop(1, 'rgba(200,255,0,0.01)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.strokeStyle = '#c8ff00'; ctx.lineWidth = 3;
+  ctx.beginPath();
+  points.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+  ctx.stroke();
+
+  // Trend line
+  if (points.length >= 3) {
+    const n = points.length;
+    const xs = points.map((_, i) => i);
+    const ys = withTime.map(r => r.total_time);
+    const sumX = xs.reduce((a, b) => a + b, 0), sumY = ys.reduce((a, b) => a + b, 0);
+    const sumXY = xs.reduce((s, x, i) => s + x * ys[i], 0);
+    const sumX2 = xs.reduce((s, x) => s + x * x, 0);
+    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+    const intercept = (sumY - slope * sumX) / n;
+
+    ctx.strokeStyle = 'rgba(200,255,0,0.3)'; ctx.lineWidth = 2;
+    ctx.setLineDash([8, 5]);
+    ctx.beginPath();
+    const y0 = padT + ((maxT - intercept) / (maxT - minT)) * chartH;
+    const y1 = padT + ((maxT - (slope * (n - 1) + intercept)) / (maxT - minT)) * chartH;
+    ctx.moveTo(points[0].x, y0); ctx.lineTo(points[points.length - 1].x, y1);
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  // Points + labels
+  const bestTimeVal = Math.min(...times);
+  points.forEach((p, i) => {
+    const isBest = p.r.total_time === bestTimeVal;
+
+    // Point
+    ctx.beginPath(); ctx.arc(p.x, p.y, isBest ? 8 : 6, 0, Math.PI * 2);
+    ctx.fillStyle = isBest ? '#00d68f' : '#c8ff00'; ctx.fill();
+    ctx.strokeStyle = '#0f1117'; ctx.lineWidth = 2; ctx.stroke();
+
+    // Time label above point
+    ctx.fillStyle = isBest ? '#00d68f' : '#e4e6ed';
+    ctx.font = (isBest ? 'bold ' : '') + '13px monospace'; ctx.textAlign = 'center';
+    ctx.fillText(minsToTime(p.r.total_time), p.x, p.y - 16);
+
+    // Event label below x-axis
+    const loc = p.r.event.location.charAt(0).toUpperCase() + p.r.event.location.slice(1);
+    const yr = (p.r.event.year || '').toString().slice(-2);
+    ctx.fillStyle = '#8b8fa3'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.save();
+    ctx.translate(p.x, padT + chartH + 15);
+    ctx.rotate(-0.5);
+    ctx.fillText(loc + " '" + yr, 0, 0);
+    ctx.restore();
+  });
+
+  // PB label
+  if (withTime.length > 1) {
+    ctx.fillStyle = '#00d68f'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText('● PB', W - padR - 30, padT - 10);
+    ctx.fillStyle = '#c8ff00';
+    ctx.fillText('— Trend', W - padR - 90, padT - 10);
+  }
+}
+
+function renderSplitEvoHTML(containerId, races, stationKeys) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+
+  const racesWithSplits = races.filter(r => stationKeys.some(sk => r[sk.key]));
+  if (racesWithSplits.length < 2) {
+    el.innerHTML = '<div style="color:var(--text2);text-align:center;padding:1rem">Servono almeno 2 gare con split</div>';
+    return;
+  }
+
+  const colors = { skiErg:'#c8ff00', sledPush:'#00d68f', sledPull:'#ff6b6b', burpee:'#ffa500', row:'#00bfff', farmersCarry:'#ff69b4', lunges:'#9370db', wallBalls:'#20b2aa' };
+
+  // Find global max for bar scaling
+  let maxVal = 0;
+  racesWithSplits.forEach(r => stationKeys.forEach(sk => {
+    const v = r[sk.key];
+    if (v && !isNaN(v) && v > maxVal) maxVal = v;
+  }));
+
+  let html = '<div style="overflow-x:auto">';
+  html += '<table style="width:100%;border-collapse:collapse;font-size:0.82rem;min-width:' + (racesWithSplits.length * 100 + 110) + 'px">';
+
+  // Header row with event names
+  html += '<tr><th style="text-align:left;padding:0.5rem;color:var(--text2);font-size:0.75rem;min-width:100px">Stazione</th>';
+  racesWithSplits.forEach(r => {
+    const loc = r.event.location.charAt(0).toUpperCase() + r.event.location.slice(1);
+    html += '<th style="text-align:center;padding:0.5rem;color:var(--text2);font-size:0.72rem;min-width:80px">' + loc + " '" + (r.event.year||'').toString().slice(-2) + '</th>';
+  });
+  html += '</tr>';
+
+  // One row per station
+  stationKeys.forEach(sk => {
+    const vals = racesWithSplits.map(r => r[sk.key]);
+    const validVals = vals.filter(v => v && !isNaN(v));
+    if (!validVals.length) return;
+
+    const bestVal = Math.min(...validVals);
+    const firstVal = vals.find(v => v && !isNaN(v));
+    const lastValid = [...vals].reverse().find(v => v && !isNaN(v));
+
+    html += '<tr style="border-top:1px solid var(--border)">';
+    html += '<td style="padding:0.5rem;font-weight:600;white-space:nowrap"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + (colors[sk.key]||'#888') + ';margin-right:6px"></span>' + sk.name + '</td>';
+
+    vals.forEach((v, i) => {
+      if (!v || isNaN(v)) {
+        html += '<td style="text-align:center;padding:0.4rem;color:var(--text2)">—</td>';
+        return;
+      }
+      const barPct = (v / maxVal) * 100;
+      const isBest = v === bestVal;
+      const barColor = colors[sk.key] || '#888';
+      const opacity = isBest ? '1' : '0.5';
+
+      // Delta vs first race
+      let delta = '';
+      if (firstVal && i > 0) {
+        const d = v - firstVal;
+        if (Math.abs(d) > 0.01) {
+          const sign = d < 0 ? '' : '+';
+          const dColor = d < 0 ? '#00d68f' : '#ff6b6b';
+          delta = '<div style="font-size:0.68rem;color:' + dColor + '">' + sign + minsToTime(Math.abs(d)) + '</div>';
+        }
+      }
+
+      html += '<td style="padding:0.4rem;text-align:center">';
+      html += '<div style="height:18px;background:var(--surface);border-radius:3px;overflow:hidden;margin-bottom:2px">';
+      html += '<div style="height:100%;width:' + barPct.toFixed(1) + '%;background:' + barColor + ';opacity:' + opacity + ';border-radius:3px"></div>';
+      html += '</div>';
+      html += '<div style="font-family:monospace;font-size:0.8rem;font-weight:' + (isBest ? '800' : '400') + ';color:' + (isBest ? '#00d68f' : 'var(--text)') + '">' + minsToTime(v) + '</div>';
+      html += delta;
+      html += '</td>';
+    });
+    html += '</tr>';
+  });
+
+  html += '</table></div>';
+
+  // Summary: which stations improved, which worsened
+  const changes = [];
+  stationKeys.forEach(sk => {
+    const vals = racesWithSplits.map(r => r[sk.key]).filter(v => v && !isNaN(v));
+    if (vals.length < 2) return;
+    const first = vals[0], last = vals[vals.length - 1];
+    const d = last - first;
+    changes.push({ name: sk.name, delta: d, key: sk.key });
+  });
+
+  if (changes.length) {
+    changes.sort((a, b) => a.delta - b.delta);
+    const improved = changes.filter(c => c.delta < -0.05);
+    const worsened = changes.filter(c => c.delta > 0.05);
+
+    html += '<div style="display:flex;gap:1.5rem;margin-top:1rem;flex-wrap:wrap;font-size:0.82rem">';
+    if (improved.length) {
+      html += '<div><span style="color:#00d68f;font-weight:700">Migliorate:</span> ';
+      html += improved.map(c => c.name + ' <span style="color:#00d68f;font-family:monospace">-' + minsToTime(Math.abs(c.delta)) + '</span>').join(', ');
+      html += '</div>';
+    }
+    if (worsened.length) {
+      html += '<div><span style="color:#ff6b6b;font-weight:700">Peggiorate:</span> ';
+      html += worsened.map(c => c.name + ' <span style="color:#ff6b6b;font-family:monospace">+' + minsToTime(c.delta) + '</span>').join(', ');
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+
+  el.innerHTML = html;
+}
+
+function drawFatigueTrend(canvasId, data) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+
+  const cssW = canvas.parentElement.clientWidth || 700;
+  const cssH = 200;
+  const { ctx, W, H } = setupHiDPICanvas(canvas, cssW, cssH);
+
+  const padL = 60, padR = 20, padT = 25, padB = 55;
+  const chartW = W - padL - padR, chartH = H - padT - padB;
+
+  const fis = data.map(d => d.fi);
+  const minFI = Math.min(0, Math.min(...fis) - 2);
+  const maxFI = Math.max(...fis) + 5;
+
+  // Background
+  ctx.fillStyle = '#1a1d27'; ctx.fillRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = '#2e3347'; ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + (chartH / 4) * i;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+    const val = maxFI - (maxFI - minFI) * (i / 4);
+    ctx.fillStyle = '#8b8fa3'; ctx.font = '11px monospace'; ctx.textAlign = 'right';
+    ctx.fillText(val.toFixed(0) + '%', padL - 8, y + 4);
+  }
+
+  // Points and line
+  const pts = data.map((d, i) => ({
+    x: padL + (data.length > 1 ? (i / (data.length - 1)) * chartW : chartW / 2),
+    y: padT + ((maxFI - d.fi) / (maxFI - minFI)) * chartH,
+    d
+  }));
+
+  ctx.strokeStyle = '#ffa500'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+  ctx.stroke();
+
+  pts.forEach(p => {
+    const color = p.d.fi <= 5 ? '#00d68f' : p.d.fi <= 15 ? '#c8ff00' : p.d.fi <= 25 ? '#ffa500' : '#ff6b6b';
+    ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+    ctx.fillStyle = color; ctx.fill();
+    ctx.strokeStyle = '#0f1117'; ctx.lineWidth = 2; ctx.stroke();
+
+    ctx.fillStyle = '#e4e6ed'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center';
+    ctx.fillText('+' + p.d.fi.toFixed(1) + '%', p.x, p.y - 12);
+
+    const loc = p.d.event.location.charAt(0).toUpperCase() + p.d.event.location.slice(1);
+    ctx.fillStyle = '#8b8fa3'; ctx.font = '10px sans-serif';
+    ctx.save();
+    ctx.translate(p.x, padT + chartH + 15);
+    ctx.rotate(-0.5);
+    ctx.fillText(loc + " '" + (p.d.event.year || '').toString().slice(-2), 0, 0);
+    ctx.restore();
+  });
+}
 
 // -- Tabs --
 document.getElementById('tabs').addEventListener('click', e => {

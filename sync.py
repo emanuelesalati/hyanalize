@@ -40,6 +40,16 @@ def race_file_key(season, location, year):
     return f"s{season}_{location}_{year}"
 
 
+def fix_name(name):
+    """Converte 'Cognome, Nome' → 'Nome Cognome'."""
+    if not name or not isinstance(name, str):
+        return name
+    if ", " in name:
+        parts = name.split(", ", 1)
+        return f"{parts[1]} {parts[0]}"
+    return name
+
+
 def df_to_results(df):
     """Converte un DataFrame pyrox in lista di dict leggeri."""
     rows = []
@@ -51,7 +61,7 @@ def df_to_results(df):
             return round(v, 2) if isinstance(v, float) else v
 
         rows.append({
-            "name": val("name"),
+            "name": fix_name(val("name")),
             "nationality": val("nationality"),
             "age_group": val("age_group"),
             "gender": val("gender"),
@@ -67,6 +77,15 @@ def df_to_results(df):
             "wallBalls": val("wallBalls_time"),
             "run_time": val("run_time"),
             "work_time": val("work_time"),
+            "roxzone": val("roxzone_time"),
+            "run1": val("run1_time"),
+            "run2": val("run2_time"),
+            "run3": val("run3_time"),
+            "run4": val("run4_time"),
+            "run5": val("run5_time"),
+            "run6": val("run6_time"),
+            "run7": val("run7_time"),
+            "run8": val("run8_time"),
         })
     return rows
 
