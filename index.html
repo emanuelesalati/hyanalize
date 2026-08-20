@@ -1456,6 +1456,21 @@ function renderAthleteResults(found) {
 
       // Store data for this specific race (preserved for graphic generation)
       const splits = splitKeys.map(sk => ({ name: sk.name, val: r[sk.key] })).filter(s => s.val);
+
+      // Compute runs/stations/roxzone rankings
+      const runsTime = r.run_time;
+      const workTime = r.work_time;
+      const roxzoneTime = r.roxzone;
+      let runsRank = 0, stationsRank = 0, roxRank = 0;
+      if (sortedPeers.length) {
+        const runsSorted = [...sortedPeers].filter(p => p.run_time).sort((a,b) => a.run_time - b.run_time);
+        runsRank = runsSorted.findIndex(p => p.name === r.name && Math.abs((p.run_time||0) - (runsTime||0)) < 0.01) + 1;
+        const stSorted = [...sortedPeers].filter(p => p.work_time).sort((a,b) => a.work_time - b.work_time);
+        stationsRank = stSorted.findIndex(p => p.name === r.name && Math.abs((p.work_time||0) - (workTime||0)) < 0.01) + 1;
+        const roxSorted = [...sortedPeers].filter(p => p.roxzone).sort((a,b) => a.roxzone - b.roxzone);
+        roxRank = roxSorted.findIndex(p => p.name === r.name && Math.abs((p.roxzone||0) - (roxzoneTime||0)) < 0.01) + 1;
+      }
+
       window._athleteData[rid] = {
         name: displayName,
         eventLocation: ev.location,
@@ -1464,9 +1479,13 @@ function renderAthleteResults(found) {
         division: r.division,
         gender: r.gender,
         total_time: r.total_time,
-        splits: splits,
+        splits,
         nationality: r.nationality,
         age_group: r.age_group,
+        rank, totalPeers, pctile,
+        runsTime, runsRank, runsTotal: sortedPeers.filter(p => p.run_time).length,
+        workTime, stationsRank, stationsTotal: sortedPeers.filter(p => p.work_time).length,
+        roxzoneTime, roxRank, roxTotal: sortedPeers.filter(p => p.roxzone).length,
       };
 
       html += '</div>';
@@ -2040,31 +2059,29 @@ function drawReportGraphic(ctx, W, H, data, drawHeader, drawFooter, roundRect, C
 
 function drawAthleteGraphic(ctx, W, H, data, drawHeader, drawFooter, roundRect, C) {
   const { name, races, best } = data;
+  const isStory = H === 1920;
   drawHeader(name.toUpperCase());
 
   const padX = 60;
-  let y = 210;
+  let y = 200;
 
-  // Best time big
-  ctx.fillStyle = C.TEXT2;
-  ctx.font = '22px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('MIGLIOR TEMPO', W / 2, y);
-  y += 50;
-  ctx.fillStyle = C.ACCENT;
-  ctx.font = 'bold 60px SF Mono, Cascadia Code, monospace';
-  ctx.fillText(best ? minsToTime(best.total_time) : '--:--', W / 2, y);
-  y += 30;
-
-  // Races count
-  ctx.fillStyle = C.TEXT2;
-  ctx.font = '22px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
-  ctx.fillText(`${races.length} gara/e disputata/e`, W / 2, y + 30);
-  y += 70;
-
-  // Best race splits as bars
+  // Event info (if best race available)
   if (best) {
-    const splits = [
+    ctx.fillStyle = C.TEXT2; ctx.font = '20px Inter, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(races.length + ' gara/e disputata/e', W / 2, y);
+    y += isStory ? 55 : 40;
+  }
+
+  // Best time hero
+  ctx.fillStyle = C.TEXT2; ctx.font = '20px Inter, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('MIGLIOR TEMPO', W / 2, y); y += 50;
+  ctx.fillStyle = C.ACCENT; ctx.font = 'bold 72px JetBrains Mono, monospace';
+  ctx.fillText(best ? minsToTime(best.total_time) : '--:--', W / 2, y);
+  y += isStory ? 70 : 55;
+
+  // Split times as clean list (no misleading fastest/slowest)
+  if (best) {
+    const stationSplits = [
       { name: 'SkiErg', val: best.skiErg },
       { name: 'Sled Push', val: best.sledPush },
       { name: 'Sled Pull', val: best.sledPull },
@@ -2075,55 +2092,46 @@ function drawAthleteGraphic(ctx, W, H, data, drawHeader, drawFooter, roundRect, 
       { name: 'Wall Balls', val: best.wallBalls },
     ].filter(s => s.val);
 
-    if (splits.length) {
-      ctx.fillStyle = C.TEXT;
-      ctx.font = 'bold 22px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
-      ctx.textAlign = 'left';
-      ctx.fillText('SPLIT MIGLIOR GARA', padX, y);
-      y += 30;
+    if (stationSplits.length) {
+      ctx.fillStyle = C.TEXT; ctx.font = 'bold 20px Inter, sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText('SPLIT STAZIONI', padX, y); y += isStory ? 35 : 28;
 
-      const bestSplit = splits.reduce((a, b) => a.val < b.val ? a : b);
-      const worstSplit = splits.reduce((a, b) => a.val > b.val ? a : b);
-      const maxVal = worstSplit.val;
-      const barMaxW = W - 2 * padX - 180;
-      const barH = H === 1920 ? 55 : 45;
-      const barGap = H === 1920 ? 12 : 8;
+      const rowH = isStory ? 50 : 40;
+      const colTime = W - padX - 10;
 
-      splits.forEach(s => {
-        const barW = Math.max((s.val / maxVal) * barMaxW, 20);
-        let barColor = C.TEXT2;
-        if (s === bestSplit) barColor = C.GREEN;
-        else if (s === worstSplit) barColor = '#ff6b6b';
-
-        ctx.fillStyle = C.TEXT;
-        ctx.font = '18px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
-        ctx.textAlign = 'left';
-        ctx.fillText(s.name, padX, y + barH / 2 + 6);
-
-        ctx.fillStyle = barColor;
-        roundRect(padX + 150, y, barW, barH, 6);
-        ctx.fill();
-
-        ctx.fillStyle = C.BG;
-        ctx.font = 'bold 16px SF Mono, Cascadia Code, monospace';
-        ctx.textAlign = 'left';
-        ctx.fillText(minsToTime(s.val), padX + 158, y + barH / 2 + 6);
-
-        y += barH + barGap;
+      stationSplits.forEach((s, i) => {
+        if (i % 2 === 0) {
+          ctx.fillStyle = 'rgba(26,29,39,0.6)';
+          roundRect(padX - 5, y - 2, W - 2 * padX + 10, rowH, 6); ctx.fill();
+        }
+        ctx.fillStyle = C.TEXT; ctx.font = '18px Inter, sans-serif'; ctx.textAlign = 'left';
+        ctx.fillText(s.name, padX + 8, y + rowH / 2 + 1);
+        ctx.fillStyle = C.ACCENT; ctx.font = 'bold 18px JetBrains Mono, monospace'; ctx.textAlign = 'right';
+        ctx.fillText(minsToTime(s.val), colTime, y + rowH / 2 + 1);
+        y += rowH;
       });
 
-      // Legend
-      y += 10;
-      ctx.font = '16px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
-      ctx.textAlign = 'left';
-      ctx.fillStyle = C.GREEN;
-      ctx.fillRect(padX, y, 14, 14);
-      ctx.fillStyle = C.TEXT2;
-      ctx.fillText('Punto forte', padX + 22, y + 12);
-      ctx.fillStyle = '#ff6b6b';
-      ctx.fillRect(padX + 150, y, 14, 14);
-      ctx.fillStyle = C.TEXT2;
-      ctx.fillText('Punto debole', padX + 172, y + 12);
+      // Runs total
+      if (best.run_time) {
+        y += 6;
+        ctx.fillStyle = 'rgba(200,255,0,0.08)';
+        roundRect(padX - 5, y - 2, W - 2 * padX + 10, rowH + 4, 6); ctx.fill();
+        ctx.fillStyle = C.TEXT; ctx.font = 'bold 18px Inter, sans-serif'; ctx.textAlign = 'left';
+        ctx.fillText('RUNS (totale)', padX + 8, y + rowH / 2 + 2);
+        ctx.fillStyle = C.ACCENT; ctx.font = 'bold 18px JetBrains Mono, monospace'; ctx.textAlign = 'right';
+        ctx.fillText(minsToTime(best.run_time), colTime, y + rowH / 2 + 2);
+      }
+
+      // Roxzone
+      if (best.roxzone) {
+        y += rowH + 6;
+        ctx.fillStyle = 'rgba(200,255,0,0.08)';
+        roundRect(padX - 5, y - 2, W - 2 * padX + 10, rowH + 4, 6); ctx.fill();
+        ctx.fillStyle = C.TEXT; ctx.font = 'bold 18px Inter, sans-serif'; ctx.textAlign = 'left';
+        ctx.fillText('ROXZONE', padX + 8, y + rowH / 2 + 2);
+        ctx.fillStyle = C.ACCENT; ctx.font = 'bold 18px JetBrains Mono, monospace'; ctx.textAlign = 'right';
+        ctx.fillText(minsToTime(best.roxzone), colTime, y + rowH / 2 + 2);
+      }
     }
   }
 
@@ -2502,84 +2510,152 @@ function generateAthleteGraphic(rid) {
   canvas.width = W; canvas.height = H; canvas.style.display = 'block';
   const ctx = canvas.getContext('2d');
   const C = { BG:'#0f1117', SURFACE:'#1a1d27', ACCENT:'#c8ff00', TEXT:'#e4e6ed', TEXT2:'#8b8fa3', GREEN:'#00d68f', RED:'#ff6b6b' };
+  const isStory = H === 1920;
 
   ctx.fillStyle = C.BG; ctx.fillRect(0, 0, W, H);
 
   function roundRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
 
-  // Header
-  ctx.fillStyle = C.SURFACE; ctx.fillRect(0,0,W,100);
-  ctx.fillStyle = C.ACCENT; ctx.font = 'bold 40px sans-serif'; ctx.textAlign = 'left';
-  ctx.fillText('HY', 50, 65);
+  // Header bar
+  ctx.fillStyle = C.SURFACE; ctx.fillRect(0, 0, W, 90);
+  ctx.fillStyle = C.ACCENT; ctx.font = 'bold 36px Inter, sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText('HY', 50, 58);
   const hyW = ctx.measureText('HY').width;
-  ctx.fillStyle = C.TEXT; ctx.fillText('ANALIZE', 50+hyW, 65);
+  ctx.fillStyle = C.TEXT; ctx.fillText('ANALIZE', 50 + hyW, 58);
 
-  // Footer
-  const fy = H-60;
-  ctx.fillStyle = C.SURFACE; ctx.fillRect(0,fy,W,60);
-  ctx.fillStyle = C.TEXT2; ctx.font = '22px sans-serif'; ctx.textAlign = 'center';
-  ctx.fillText('@hyroxitaliacommunity', W/2, fy+38);
+  // Footer bar
+  const fy = H - 55;
+  ctx.fillStyle = C.SURFACE; ctx.fillRect(0, fy, W, 55);
+  ctx.fillStyle = C.TEXT2; ctx.font = '20px Inter, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('@hyroxitaliacommunity', W / 2, fy + 36);
 
-  const padX = 60;
-  let y = 130;
+  const padX = 55;
+  let y = 120;
 
-  // Athlete name
-  ctx.fillStyle = C.ACCENT; ctx.font = 'bold 36px sans-serif'; ctx.textAlign = 'center';
-  ctx.fillText(data.name.toUpperCase(), W/2, y); y += 50;
+  // Event name line
+  const eventTitle = (data.eventLocation || '').toUpperCase() + ' ' + data.eventYear;
+  ctx.fillStyle = C.TEXT2; ctx.font = '22px Inter, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText(eventTitle, W / 2, y); y += 30;
 
-  // Event name
-  const eventTitle = `${(data.eventLocation || '').toUpperCase()} ${data.eventYear} — Season ${data.eventSeason}`;
-  ctx.fillStyle = C.TEXT; ctx.font = '26px sans-serif';
-  ctx.fillText(eventTitle, W/2, y); y += 35;
+  // Division badges
+  const divLabel = [data.division, data.gender, data.age_group].filter(Boolean).join(' | ').toUpperCase();
+  ctx.font = '18px Inter, sans-serif'; ctx.fillStyle = C.TEXT2;
+  ctx.fillText(divLabel, W / 2, y); y += isStory ? 50 : 40;
 
-  // Division / Gender
-  ctx.fillStyle = C.TEXT2; ctx.font = '22px sans-serif';
-  ctx.fillText([data.division, data.gender, data.age_group].filter(Boolean).join(' | '), W/2, y); y += 60;
+  // Athlete name (big)
+  ctx.fillStyle = C.TEXT; ctx.font = 'bold 44px Inter, sans-serif'; ctx.textAlign = 'center';
+  const displayName = data.name.toUpperCase();
+  // Truncate if too wide
+  let nameStr = displayName;
+  while (ctx.measureText(nameStr).width > W - 2 * padX && nameStr.length > 5) nameStr = nameStr.slice(0, -1);
+  if (nameStr !== displayName) nameStr += '...';
+  ctx.fillText(nameStr, W / 2, y);
+  // Nationality badge next to name
+  if (data.nationality) {
+    const nameW = ctx.measureText(nameStr).width;
+    ctx.font = '16px JetBrains Mono, monospace'; ctx.fillStyle = C.TEXT2;
+    const flagX = W / 2 + nameW / 2 + 12;
+    ctx.fillStyle = 'rgba(139,143,163,0.2)';
+    const flagTxt = data.nationality;
+    const flagW = ctx.measureText(flagTxt).width;
+    roundRect(flagX, y - 16, flagW + 14, 24, 5); ctx.fill();
+    ctx.fillStyle = C.TEXT2; ctx.fillText(flagTxt, flagX + 7, y - 0);
+  }
+  y += isStory ? 65 : 50;
 
-  // Total time big
-  ctx.fillStyle = C.TEXT2; ctx.font = '22px sans-serif';
-  ctx.fillText('TEMPO TOTALE', W/2, y); y += 50;
-  ctx.fillStyle = C.ACCENT; ctx.font = 'bold 70px monospace';
-  ctx.fillText(minsToTime(data.total_time), W/2, y); y += 70;
+  // ── Total time (hero section) ──
+  ctx.fillStyle = C.ACCENT; ctx.font = 'bold 80px JetBrains Mono, monospace'; ctx.textAlign = 'center';
+  ctx.fillText(minsToTime(data.total_time), W / 2, y); y += 15;
 
-  // Splits as bars
-  const splits = data.splits || [];
+  // Ranking badge
+  if (data.rank > 0 && data.totalPeers > 0) {
+    y += 10;
+    const rankText = '#' + data.rank + ' su ' + data.totalPeers + '  —  top ' + data.pctile.toFixed(1) + '%';
+    ctx.font = 'bold 22px Inter, sans-serif';
+    const rw = ctx.measureText(rankText).width + 30;
+    const rx = W / 2 - rw / 2;
+    // Badge color based on percentile
+    const badgeColor = data.pctile <= 10 ? C.GREEN : data.pctile <= 25 ? 'rgba(0,214,143,0.6)' : data.pctile <= 50 ? 'rgba(200,255,0,0.4)' : 'rgba(139,143,163,0.3)';
+    ctx.fillStyle = badgeColor;
+    roundRect(rx, y - 4, rw, 38, 10); ctx.fill();
+    ctx.fillStyle = data.pctile <= 25 ? C.BG : C.TEXT; ctx.textAlign = 'center';
+    ctx.fillText(rankText, W / 2, y + 24);
+    y += isStory ? 65 : 55;
+  } else {
+    y += isStory ? 45 : 35;
+  }
+
+  // ── Three metric cards: Runs / Stations / Roxzone ──
+  const cards = [];
+  if (data.runsTime) cards.push({ label: 'RUNS', time: data.runsTime, rank: data.runsRank, total: data.runsTotal });
+  if (data.workTime) cards.push({ label: 'STATIONS', time: data.workTime, rank: data.stationsRank, total: data.stationsTotal });
+  if (data.roxzoneTime) cards.push({ label: 'ROXZONE', time: data.roxzoneTime, rank: data.roxRank, total: data.roxTotal });
+
+  if (cards.length) {
+    const cardGap = 15;
+    const cardW = (W - 2 * padX - (cards.length - 1) * cardGap) / cards.length;
+    const cardH = isStory ? 130 : 105;
+
+    cards.forEach((c, i) => {
+      const cx = padX + i * (cardW + cardGap);
+      ctx.fillStyle = C.SURFACE; roundRect(cx, y, cardW, cardH, 12); ctx.fill();
+
+      // Label
+      ctx.fillStyle = C.TEXT2; ctx.font = 'bold 15px Inter, sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(c.label, cx + cardW / 2, y + 25);
+
+      // Time
+      ctx.fillStyle = C.ACCENT; ctx.font = 'bold 30px JetBrains Mono, monospace';
+      ctx.fillText(minsToTime(c.time), cx + cardW / 2, y + cardH / 2 + 10);
+
+      // Rank
+      if (c.rank > 0 && c.total > 0) {
+        const rPct = (c.rank / c.total * 100).toFixed(1);
+        ctx.fillStyle = C.TEXT2; ctx.font = '14px Inter, sans-serif';
+        ctx.fillText('#' + c.rank + '/' + c.total + ' (top ' + rPct + '%)', cx + cardW / 2, y + cardH - 14);
+      }
+    });
+    y += cardH + (isStory ? 35 : 25);
+  }
+
+  // ── Split times (clean list, no misleading colors) ──
+  const splits = (data.splits || []).filter(s => s.name !== 'Run');
   if (splits.length) {
-    ctx.fillStyle = C.TEXT; ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'left';
-    ctx.fillText('SPLIT', padX, y); y += 30;
+    ctx.fillStyle = C.TEXT; ctx.font = 'bold 20px Inter, sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText('SPLIT STAZIONI', padX, y); y += isStory ? 35 : 28;
 
-    const bestSplit = splits.reduce((a, b) => a.val < b.val ? a : b);
-    const worstSplit = splits.reduce((a, b) => a.val > b.val ? a : b);
-    const maxVal = worstSplit.val;
-    const barMaxW = W - 2*padX - 180;
-    const barH = format === 'story' ? 60 : 45;
-    const barGap = format === 'story' ? 14 : 8;
+    const rowH = isStory ? 48 : 38;
+    const colTime = W - padX - 10;
 
-    splits.forEach(s => {
-      const barW = Math.max((s.val / maxVal) * barMaxW, 20);
-      let barColor = C.TEXT2;
-      if (s === bestSplit) barColor = C.GREEN;
-      else if (s === worstSplit) barColor = C.RED;
+    splits.forEach((s, i) => {
+      // Alternating row bg
+      if (i % 2 === 0) {
+        ctx.fillStyle = 'rgba(26,29,39,0.6)';
+        roundRect(padX - 5, y - 2, W - 2 * padX + 10, rowH, 6); ctx.fill();
+      }
 
-      ctx.fillStyle = C.TEXT; ctx.font = '18px sans-serif'; ctx.textAlign = 'left';
-      ctx.fillText(s.name, padX, y + barH/2 + 6);
+      // Station name
+      ctx.fillStyle = C.TEXT; ctx.font = '18px Inter, sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText(s.name, padX + 8, y + rowH / 2 + 1);
 
-      ctx.fillStyle = barColor;
-      roundRect(padX+150, y, barW, barH, 6); ctx.fill();
+      // Time (right-aligned)
+      ctx.fillStyle = C.ACCENT; ctx.font = 'bold 18px JetBrains Mono, monospace'; ctx.textAlign = 'right';
+      ctx.fillText(minsToTime(s.val), colTime, y + rowH / 2 + 1);
 
-      ctx.fillStyle = C.BG; ctx.font = 'bold 16px monospace'; ctx.textAlign = 'left';
-      ctx.fillText(minsToTime(s.val), padX+158, y + barH/2 + 6);
-
-      y += barH + barGap;
+      y += rowH;
     });
 
-    // Legend
-    y += 10;
-    ctx.font = '16px sans-serif'; ctx.textAlign = 'left';
-    ctx.fillStyle = C.GREEN; ctx.fillRect(padX, y, 14, 14);
-    ctx.fillStyle = C.TEXT2; ctx.fillText('Punto forte', padX+22, y+12);
-    ctx.fillStyle = C.RED; ctx.fillRect(padX+150, y, 14, 14);
-    ctx.fillStyle = C.TEXT2; ctx.fillText('Punto debole', padX+172, y+12);
+    // Run total as separate highlighted row
+    const runSplit = (data.splits || []).find(s => s.name === 'Run');
+    if (runSplit) {
+      y += 6;
+      ctx.fillStyle = 'rgba(200,255,0,0.08)';
+      roundRect(padX - 5, y - 2, W - 2 * padX + 10, rowH + 4, 6); ctx.fill();
+      ctx.fillStyle = C.TEXT; ctx.font = 'bold 18px Inter, sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText('RUNS (totale)', padX + 8, y + rowH / 2 + 2);
+      ctx.fillStyle = C.ACCENT; ctx.font = 'bold 18px JetBrains Mono, monospace'; ctx.textAlign = 'right';
+      ctx.fillText(minsToTime(runSplit.val), colTime, y + rowH / 2 + 2);
+    }
   }
 
   document.getElementById(`btn-download-${rid}`).style.display = '';
