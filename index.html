@@ -421,8 +421,12 @@
   <div class="section" id="sec-content">
     <div class="content-type-btns" id="content-type-btns">
       <div class="content-type-btn active" data-type="top10">Top 10</div>
-      <div class="content-type-btn" data-type="report">Report Evento</div>
-      <div class="content-type-btn" data-type="athlete">Profilo Atleta</div>
+      <div class="content-type-btn" data-type="report">Report</div>
+      <div class="content-type-btn" data-type="distribuzione">Distribuzione</div>
+      <div class="content-type-btn" data-type="stazioni">Confronto Stazioni</div>
+      <div class="content-type-btn" data-type="pacing">Pacing Analysis</div>
+      <div class="content-type-btn" data-type="nazionalita">Nazionalità</div>
+      <div class="content-type-btn" data-type="athlete">Cerca Atleta</div>
     </div>
 
     <div class="filters" id="content-filters"></div>
@@ -498,7 +502,7 @@ async function loadRace(key) {
   try {
     const resp = await fetch(`data/races/${key}.json`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    currentRaceResults = await resp.json();
+    currentRaceResults = deduplicateResults(await resp.json());
     raceCache[key] = currentRaceResults;
     loading.textContent = '';
     wrap.style.display = '';
@@ -755,8 +759,8 @@ async function loadContentRace(key) {
   const resp = await fetch(`data/races/${key}.json`);
   if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
   const data = await resp.json();
-  raceCache[key] = data;
-  return data;
+  raceCache[key] = deduplicateResults(data);
+  return raceCache[key];
 }
 
 async function generateContent() {
@@ -780,15 +784,43 @@ async function generateContent() {
 
     if (contentType === 'top10') generateTop10(key, results);
     else if (contentType === 'report') generateReport(key, results);
+    else if (contentType === 'distribuzione') generateDistribuzione(key, results);
+    else if (contentType === 'stazioni') generateStazioni(key, results);
+    else if (contentType === 'pacing') generatePacing(key, results);
+    else if (contentType === 'nazionalita') generateNazionalita(key, results);
   } catch (err) {
     area.innerHTML = `<div class="loading-msg">Errore: ${err.message}</div>`;
   }
 }
 
+// pyrox-client duplicates doubles athletes as singles entries (phantom data).
+// This function removes them: if "Name" appears in pro_doubles AND pro, remove the pro entry.
+function deduplicateResults(results) {
+  // Build sets of individual names from doubles divisions
+  const doublesNames = { pro_doubles: new Set(), doubles: new Set() };
+  results.forEach(r => {
+    if (!r.name || (r.division !== 'pro_doubles' && r.division !== 'doubles')) return;
+    // Doubles name format: "Name1, Name2, Name1 Name2" — extract individual names
+    r.name.split(', ').forEach(part => {
+      const words = part.trim().split(' ');
+      if (words.length >= 2 && words.length <= 3) {
+        doublesNames[r.division].add(part.trim().toLowerCase());
+      }
+    });
+  });
+  // Filter: remove singles entries whose name matches a doubles athlete
+  return results.filter(r => {
+    const name = (r.name || '').toLowerCase().trim();
+    if (r.division === 'pro' && doublesNames.pro_doubles.has(name)) return false;
+    if (r.division === 'open' && doublesNames.doubles.has(name)) return false;
+    return true;
+  });
+}
+
 function getFilteredContent(results) {
   const div = document.getElementById('content-division')?.value || '';
   const gen = document.getElementById('content-gender')?.value || '';
-  let filtered = results;
+  let filtered = deduplicateResults(results);
   if (div) filtered = filtered.filter(r => r.division === div);
   if (gen) filtered = filtered.filter(r => r.gender === gen);
   return filtered.filter(r => r.total_time).sort((a, b) => a.total_time - b.total_time);
@@ -908,6 +940,183 @@ function generateReport(key, results) {
   window._igData = { type: 'report', key, event, filtered, n, times, avg, median, p10, p90, avgSplits, slowest, fastest, topNats, div, gen, subtitle };
 }
 
+function generateDistribuzione(key, results) {
+  const event = DATA.events.find(e => e.key === key);
+  const filtered = getFilteredContent(results);
+  if (!filtered.length) { document.getElementById('content-area').innerHTML = '<div class="loading-msg">Nessun risultato</div>'; return; }
+
+  const times = filtered.map(r => r.total_time);
+  const n = times.length;
+  const avg = times.reduce((a, b) => a + b, 0) / n;
+  const median = times[Math.floor(n / 2)];
+  const stddev = Math.sqrt(times.reduce((s, t) => s + (t - avg) ** 2, 0) / n);
+  const p10 = times[Math.floor(n * 0.1)];
+  const p25 = times[Math.floor(n * 0.25)];
+  const p75 = times[Math.floor(n * 0.75)];
+  const p90 = times[Math.floor(n * 0.9)];
+
+  const div = document.getElementById('content-division')?.value || '';
+  const gen = document.getElementById('content-gender')?.value || '';
+  const subtitle = [div, gen].filter(Boolean).join(' | ') || 'Tutte le divisioni';
+
+  let text = `DISTRIBUZIONE TEMPI - ${event.location.toUpperCase()} ${event.year}\n${subtitle}\n${'─'.repeat(40)}\n\n`;
+  text += `Partecipanti: ${n.toLocaleString()}\n`;
+  text += `Piu veloce: ${minsToTime(times[0])}\n`;
+  text += `Media: ${minsToTime(avg)}\n`;
+  text += `Mediana: ${minsToTime(median)}\n`;
+  text += `Deviazione std: ${minsToTime(stddev)}\n`;
+  text += `Piu lento: ${minsToTime(times[n - 1])}\n\n`;
+  text += `ZONE PERCENTILI\n${'─'.repeat(30)}\n`;
+  text += `Top 10%: sotto ${minsToTime(p10)}\n`;
+  text += `Top 25%: sotto ${minsToTime(p25)}\n`;
+  text += `Mediana: ${minsToTime(median)}\n`;
+  text += `Bottom 25%: sopra ${minsToTime(p75)}\n`;
+  text += `Bottom 10%: sopra ${minsToTime(p90)}\n`;
+
+  const area = document.getElementById('content-area');
+  area.innerHTML = '<div class="content-output"><button class="btn-copy" onclick="copyContent()">Copia</button>' + escHtml(text) + '</div>' + renderGraphicControls('distribuzione');
+  window._igData = { type: 'distribuzione', key, event, filtered, times, n, avg, median, stddev, p10, p25, p75, p90, div, gen, subtitle };
+}
+
+function generateStazioni(key, results) {
+  const event = DATA.events.find(e => e.key === key);
+  const filtered = getFilteredContent(results);
+  if (!filtered.length) { document.getElementById('content-area').innerHTML = '<div class="loading-msg">Nessun risultato</div>'; return; }
+
+  const splitNames = ['skiErg','sledPush','sledPull','burpee','row','farmersCarry','lunges','wallBalls'];
+  const splitLabels = { skiErg:'SkiErg', sledPush:'Sled Push', sledPull:'Sled Pull', burpee:'Burpee BJ', row:'Row', farmersCarry:'Farmers Carry', lunges:'Lunges', wallBalls:'Wall Balls' };
+
+  const avgSplits = splitNames.map(s => {
+    const vals = filtered.map(r => r[s]).filter(v => v && !isNaN(v));
+    if (!vals.length) return null;
+    const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+    return { key: s, name: splitLabels[s], avg, count: vals.length };
+  }).filter(Boolean);
+
+  if (!avgSplits.length) { document.getElementById('content-area').innerHTML = '<div class="loading-msg">Nessun dato stazioni</div>'; return; }
+
+  const totalAvg = avgSplits.reduce((s, sp) => s + sp.avg, 0);
+  avgSplits.forEach(sp => sp.pct = (sp.avg / totalAvg) * 100);
+  const sorted = [...avgSplits].sort((a, b) => b.avg - a.avg);
+  const slowest = sorted[0];
+  const fastest = sorted[sorted.length - 1];
+
+  const div = document.getElementById('content-division')?.value || '';
+  const gen = document.getElementById('content-gender')?.value || '';
+  const subtitle = [div, gen].filter(Boolean).join(' | ') || 'Tutte le divisioni';
+
+  let text = `CONFRONTO STAZIONI - ${event.location.toUpperCase()} ${event.year}\n${subtitle}\n${'─'.repeat(40)}\n\n`;
+  sorted.forEach(s => {
+    const marker = s === slowest ? ' ← PIU LENTA' : s === fastest ? ' ← PIU VELOCE' : '';
+    text += `${s.name.padEnd(14)} ${minsToTime(s.avg)} (${s.pct.toFixed(1)}%)${marker}\n`;
+  });
+  text += `\nStazione piu difficile: ${slowest.name} (${minsToTime(slowest.avg)})\n`;
+  text += `Stazione piu veloce: ${fastest.name} (${minsToTime(fastest.avg)})\n`;
+
+  const area = document.getElementById('content-area');
+  area.innerHTML = '<div class="content-output"><button class="btn-copy" onclick="copyContent()">Copia</button>' + escHtml(text) + '</div>' + renderGraphicControls('stazioni');
+  window._igData = { type: 'stazioni', key, event, filtered, avgSplits, sorted, slowest, fastest, totalAvg, div, gen, subtitle };
+}
+
+function generatePacing(key, results) {
+  const event = DATA.events.find(e => e.key === key);
+  const filtered = getFilteredContent(results);
+  if (!filtered.length) { document.getElementById('content-area').innerHTML = '<div class="loading-msg">Nessun risultato</div>'; return; }
+
+  const runKeys = ['run1','run2','run3','run4','run5','run6','run7','run8'];
+  const runAvgs = runKeys.map((k, i) => {
+    const vals = filtered.map(r => r[k]).filter(v => v && !isNaN(v));
+    if (!vals.length) return null;
+    const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+    return { name: 'Run ' + (i + 1), key: k, avg, count: vals.length, index: i };
+  }).filter(Boolean);
+
+  if (runAvgs.length < 2) { document.getElementById('content-area').innerHTML = '<div class="loading-msg">Dati run insufficienti</div>'; return; }
+
+  const run1Avg = runAvgs[0].avg;
+  runAvgs.forEach(r => r.fade = ((r.avg - run1Avg) / run1Avg) * 100);
+
+  // Find "the wall" - biggest increase from previous run
+  let wallIdx = 0, wallDelta = 0;
+  for (let i = 1; i < runAvgs.length; i++) {
+    const delta = runAvgs[i].avg - runAvgs[i - 1].avg;
+    if (delta > wallDelta) { wallDelta = delta; wallIdx = i; }
+  }
+
+  // Negative split analysis
+  let negSplitCount = 0, posSplitCount = 0;
+  filtered.forEach(r => {
+    const firstHalf = runKeys.slice(0, 4).map(k => r[k]).filter(v => v && !isNaN(v));
+    const secondHalf = runKeys.slice(4).map(k => r[k]).filter(v => v && !isNaN(v));
+    if (firstHalf.length && secondHalf.length) {
+      const fhAvg = firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length;
+      const shAvg = secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length;
+      if (shAvg < fhAvg) negSplitCount++; else posSplitCount++;
+    }
+  });
+  const totalSplitAthletes = negSplitCount + posSplitCount;
+  const negSplitPct = totalSplitAthletes > 0 ? (negSplitCount / totalSplitAthletes * 100) : 0;
+
+  const div = document.getElementById('content-division')?.value || '';
+  const gen = document.getElementById('content-gender')?.value || '';
+  const subtitle = [div, gen].filter(Boolean).join(' | ') || 'Tutte le divisioni';
+
+  let text = `PACING ANALYSIS - ${event.location.toUpperCase()} ${event.year}\n${subtitle}\n${'─'.repeat(40)}\n\n`;
+  text += 'TEMPI MEDI PER RUN\n';
+  runAvgs.forEach(r => {
+    const fadeStr = r.fade > 0 ? ` (+${r.fade.toFixed(1)}%)` : r.fade < 0 ? ` (${r.fade.toFixed(1)}%)` : '';
+    text += `${r.name.padEnd(8)} ${minsToTime(r.avg)}${fadeStr}\n`;
+  });
+  text += `\nTHE WALL: ${runAvgs[wallIdx].name} (+${minsToTime(wallDelta)} vs run precedente)\n`;
+  text += `Fade totale da Run 1: +${runAvgs[runAvgs.length - 1].fade.toFixed(1)}%\n`;
+  text += `\nNegative split: ${negSplitCount} atleti (${negSplitPct.toFixed(1)}%)\n`;
+  text += `Positive split: ${posSplitCount} atleti (${(100 - negSplitPct).toFixed(1)}%)\n`;
+
+  const area = document.getElementById('content-area');
+  area.innerHTML = '<div class="content-output"><button class="btn-copy" onclick="copyContent()">Copia</button>' + escHtml(text) + '</div>' + renderGraphicControls('pacing');
+  window._igData = { type: 'pacing', key, event, filtered, runAvgs, wallIdx, wallDelta, negSplitCount, posSplitCount, negSplitPct, totalSplitAthletes, div, gen, subtitle };
+}
+
+function generateNazionalita(key, results) {
+  const event = DATA.events.find(e => e.key === key);
+  const filtered = getFilteredContent(results);
+  if (!filtered.length) { document.getElementById('content-area').innerHTML = '<div class="loading-msg">Nessun risultato</div>'; return; }
+
+  const natData = {};
+  filtered.forEach(r => {
+    if (!r.nationality) return;
+    if (!natData[r.nationality]) natData[r.nationality] = { count: 0, totalTime: 0, timeCount: 0 };
+    natData[r.nationality].count++;
+    if (r.total_time) { natData[r.nationality].totalTime += r.total_time; natData[r.nationality].timeCount++; }
+  });
+
+  const natList = Object.entries(natData).map(([nat, d]) => ({
+    nat, count: d.count, avgTime: d.timeCount > 0 ? d.totalTime / d.timeCount : null
+  })).sort((a, b) => b.count - a.count);
+
+  const top10 = natList.slice(0, 10);
+  const fastestNat = natList.filter(n => n.avgTime && n.count >= 3).sort((a, b) => a.avgTime - b.avgTime)[0];
+
+  const div = document.getElementById('content-division')?.value || '';
+  const gen = document.getElementById('content-gender')?.value || '';
+  const subtitle = [div, gen].filter(Boolean).join(' | ') || 'Tutte le divisioni';
+
+  let text = `NAZIONALITA - ${event.location.toUpperCase()} ${event.year}\n${subtitle}\n${'─'.repeat(40)}\n\n`;
+  text += 'TOP 10 NAZIONALITA PER PARTECIPANTI\n';
+  top10.forEach((n, i) => {
+    const pct = (n.count / filtered.length * 100).toFixed(1);
+    const avgStr = n.avgTime ? ` — media: ${minsToTime(n.avgTime)}` : '';
+    text += `${(i + 1 + '.').padEnd(4)} ${n.nat.padEnd(6)} ${n.count} atleti (${pct}%)${avgStr}\n`;
+  });
+  if (fastestNat) {
+    text += `\nNazionalita piu veloce (min 3 atleti): ${fastestNat.nat} — ${minsToTime(fastestNat.avgTime)} media\n`;
+  }
+
+  const area = document.getElementById('content-area');
+  area.innerHTML = '<div class="content-output"><button class="btn-copy" onclick="copyContent()">Copia</button>' + escHtml(text) + '</div>' + renderGraphicControls('nazionalita');
+  window._igData = { type: 'nazionalita', key, event, filtered, top10, natList, fastestNat, div, gen, subtitle };
+}
+
 async function searchAthlete() {
   const search = (document.getElementById('content-athlete-search')?.value || '').toLowerCase().trim();
   if (search.length < 3) {
@@ -951,25 +1160,64 @@ async function searchAthlete() {
     return;
   }
 
-  // Group by athlete name (exact match)
+  // Store all found results for re-filtering
+  window._athleteSearchResults = found;
+
+  renderAthleteResults(found);
+}
+
+function renderAthleteResults(found) {
+  const area = document.getElementById('content-area');
+
+  // Get unique divisions and build filter
+  const allDivGens = [...new Set(found.map(r => r.division + '_' + r.gender))].sort();
+  const divGenLabels = {
+    open_male: 'Open Men', open_female: 'Open Women',
+    doubles_male: 'Doubles Men', doubles_female: 'Doubles Women', doubles_mixed: 'Doubles Mixed',
+    pro_male: 'Pro Men', pro_female: 'Pro Women',
+    pro_doubles_male: 'Pro Doubles Men', pro_doubles_female: 'Pro Doubles Women', pro_doubles_mixed: 'Pro Doubles Mixed',
+  };
+
+  const currentFilter = document.getElementById('athlete-div-filter')?.value || '';
+
+  let filterHtml = '<div style="display:flex;gap:0.8rem;align-items:center;flex-wrap:wrap;margin-bottom:1rem">';
+  filterHtml += '<label style="color:var(--text2);font-size:0.85rem">Divisione:</label>';
+  filterHtml += '<select id="athlete-div-filter" onchange="filterAthleteResults()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0.5rem 0.8rem;color:var(--text);font-size:0.85rem">';
+  filterHtml += '<option value="">Tutte</option>';
+  allDivGens.forEach(dg => {
+    const label = divGenLabels[dg] || dg;
+    const sel = dg === currentFilter ? ' selected' : '';
+    filterHtml += `<option value="${dg}"${sel}>${label}</option>`;
+  });
+  filterHtml += '</select></div>';
+
+  // Apply division filter
+  let filtered = found;
+  if (currentFilter) {
+    filtered = found.filter(r => (r.division + '_' + r.gender) === currentFilter);
+  }
+
+  // Sort by newest first (season desc, year desc)
+  filtered.sort((a, b) => (b.event.season || 0) - (a.event.season || 0) || (b.event.year || 0) - (a.event.year || 0));
+
+  // Group by athlete name
   const byName = {};
-  found.forEach(r => {
+  filtered.forEach(r => {
     const key = r.name || '???';
     if (!byName[key]) byName[key] = [];
     byName[key].push(r);
   });
 
-  // Pick the athlete with most results (most relevant match)
   const entries = Object.entries(byName).sort((a, b) => b[1].length - a[1].length);
 
-  let html = '';
+  let html = filterHtml;
   let raceIdx = 0;
   if (!window._athleteData) window._athleteData = {};
   window._radarQueue = [];
 
   for (const [name, races] of entries) {
-    const sorted = races.sort((a, b) => (a.total_time || 9999) - (b.total_time || 9999));
-    const bestResult = sorted.find(r => r.total_time);
+    // Keep newest-first order (already sorted above)
+    const bestResult = [...races].sort((a, b) => (a.total_time || 9999) - (b.total_time || 9999)).find(r => r.total_time);
     const displayName = formatName(name);
 
     html += `<div style="margin-bottom:1.5rem">`;
@@ -1238,6 +1486,12 @@ async function searchAthlete() {
   if (window._histoQueue && window._histoQueue.length) {
     window._histoQueue.forEach(h => drawHistogram(h.id, h.vals, h.athleteVal));
     window._histoQueue = [];
+  }
+}
+
+function filterAthleteResults() {
+  if (window._athleteSearchResults) {
+    renderAthleteResults(window._athleteSearchResults);
   }
 }
 
@@ -1549,19 +1803,29 @@ function generateGraphic() {
   const data = window._igData;
   const athleteData = window._igAthleteData;
 
+  const C = { BG, SURFACE, ACCENT, TEXT, TEXT2, GOLD, SILVER, BRONZE, GREEN, RED };
   if (data && data.type === 'top10') {
-    drawTop10Graphic(ctx, W, H, data, drawHeader, drawFooter, roundRect, { BG, SURFACE, ACCENT, TEXT, TEXT2, GOLD, SILVER, BRONZE });
+    drawTop10Graphic(ctx, W, H, data, drawHeader, drawFooter, roundRect, C);
   } else if (data && data.type === 'report') {
-    drawReportGraphic(ctx, W, H, data, drawHeader, drawFooter, roundRect, { BG, SURFACE, ACCENT, TEXT, TEXT2, GREEN, RED });
+    drawReportGraphic(ctx, W, H, data, drawHeader, drawFooter, roundRect, C);
+  } else if (data && data.type === 'distribuzione') {
+    drawDistribuzioneGraphic(ctx, W, H, data, drawHeader, drawFooter, roundRect, C);
+  } else if (data && data.type === 'stazioni') {
+    drawStazioniGraphic(ctx, W, H, data, drawHeader, drawFooter, roundRect, C);
+  } else if (data && data.type === 'pacing') {
+    drawPacingGraphic(ctx, W, H, data, drawHeader, drawFooter, roundRect, C);
+  } else if (data && data.type === 'nazionalita') {
+    drawNazionalitaGraphic(ctx, W, H, data, drawHeader, drawFooter, roundRect, C);
   } else if (athleteData) {
-    drawAthleteGraphic(ctx, W, H, athleteData, drawHeader, drawFooter, roundRect, { BG, SURFACE, ACCENT, TEXT, TEXT2, GREEN, RED });
+    drawAthleteGraphic(ctx, W, H, athleteData, drawHeader, drawFooter, roundRect, C);
   }
 
   document.getElementById('btn-download-png').style.display = '';
 }
 
 function drawTop10Graphic(ctx, W, H, data, drawHeader, drawFooter, roundRect, C) {
-  const { event, top, subtitle } = data;
+  const { event, top, subtitle, filtered } = data;
+  const isStory = H === 1920;
   const title = `TOP 10 - ${event.location.toUpperCase()} ${event.year}`;
   drawHeader(title);
 
@@ -1572,41 +1836,96 @@ function drawTop10Graphic(ctx, W, H, data, drawHeader, drawFooter, roundRect, C)
   ctx.fillText(subtitle || 'Open', W / 2, 200);
 
   const startY = 240;
-  const rowH = H === 1080 ? 72 : 140;
+  const footerH = 100; // space for participants count + footer
+  const availH = H - startY - footerH;
+  const rowH = Math.min(isStory ? 140 : 75, Math.floor(availH / 10));
   const padX = 60;
+  const rankW = 70;
+  const timeW = 200;
+  const nameMaxW = W - 2 * padX - rankW - timeW - 40;
+  const nameFontSize = isStory ? 28 : 24;
+  const rankFontSize = isStory ? 34 : 28;
+  const timeFontSize = isStory ? 28 : 26;
+  const flagFontSize = isStory ? 18 : 15;
+
+  function truncateName(name, maxW) {
+    ctx.font = 'bold ' + nameFontSize + 'px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
+    if (ctx.measureText(name).width <= maxW) return name;
+    let t = name;
+    while (t.length > 3 && ctx.measureText(t + '...').width > maxW) t = t.slice(0, -1);
+    return t + '...';
+  }
 
   top.forEach((r, i) => {
     const y = startY + i * rowH;
+    const rank = i + 1;
+
     // Row background
     ctx.fillStyle = i % 2 === 0 ? C.SURFACE : C.BG;
-    roundRect(padX - 10, y, W - 2 * padX + 20, rowH - 8, 10);
+    roundRect(padX - 10, y, W - 2 * padX + 20, rowH - 6, 10);
     ctx.fill();
 
-    // Rank
-    const rank = i + 1;
-    ctx.textAlign = 'left';
-    ctx.font = 'bold 30px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
+    // Gradient accent bar under top 3
+    if (rank <= 3) {
+      const barH = 3;
+      const grad = ctx.createLinearGradient(padX - 10, 0, padX - 10 + (W - 2 * padX + 20), 0);
+      if (rank === 1) { grad.addColorStop(0, C.GOLD); grad.addColorStop(1, 'rgba(255,215,0,0.2)'); }
+      else if (rank === 2) { grad.addColorStop(0, C.SILVER); grad.addColorStop(1, 'rgba(192,192,192,0.2)'); }
+      else { grad.addColorStop(0, C.BRONZE); grad.addColorStop(1, 'rgba(205,127,50,0.2)'); }
+      ctx.fillStyle = grad;
+      roundRect(padX - 10, y + rowH - 6 - barH, W - 2 * padX + 20, barH, 2);
+      ctx.fill();
+    }
+
+    // Rank number
+    const cy = y + (rowH - 6) / 2;
+    ctx.textAlign = 'center';
+    ctx.font = 'bold ' + rankFontSize + 'px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
     if (rank === 1) ctx.fillStyle = C.GOLD;
     else if (rank === 2) ctx.fillStyle = C.SILVER;
     else if (rank === 3) ctx.fillStyle = C.BRONZE;
     else ctx.fillStyle = C.TEXT2;
+    ctx.fillText('#' + rank, padX + rankW / 2, cy + Math.round(rankFontSize * 0.35));
 
-    const medal = rank === 1 ? '#1' : rank === 2 ? '#2' : rank === 3 ? '#3' : `#${rank}`;
-    ctx.fillText(medal, padX + 10, y + rowH / 2 + 4);
+    // Name (truncated)
+    const nameRaw = formatName(r.name);
+    const nameX = padX + rankW + 10;
+    const truncated = truncateName(nameRaw, nameMaxW - (r.nationality ? 50 : 0));
+    ctx.fillStyle = rank <= 3 ? C.TEXT : C.TEXT;
+    ctx.font = 'bold ' + nameFontSize + 'px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(truncated, nameX, cy + Math.round(nameFontSize * 0.35) - (r.nationality ? 4 : 0));
 
-    // Name
-    ctx.fillStyle = C.TEXT;
-    ctx.font = 'bold 26px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
-    const name = formatName(r.name);
-    const flag = r.nationality ? ` (${r.nationality})` : '';
-    ctx.fillText(name + flag, padX + 100, y + rowH / 2 + 4);
+    // Nationality badge (compact, below name)
+    if (r.nationality) {
+      const badgeY = cy + Math.round(nameFontSize * 0.35) + (isStory ? 12 : 8);
+      ctx.font = flagFontSize + 'px SF Mono, Cascadia Code, monospace';
+      ctx.fillStyle = C.TEXT2;
+      const flagText = r.nationality;
+      const tw = ctx.measureText(flagText).width;
+      // small pill background
+      ctx.fillStyle = 'rgba(139,143,163,0.15)';
+      roundRect(nameX, badgeY - flagFontSize + 2, tw + 12, flagFontSize + 6, 4);
+      ctx.fill();
+      ctx.fillStyle = C.TEXT2;
+      ctx.fillText(flagText, nameX + 6, badgeY);
+    }
 
-    // Time
+    // Time (right-aligned)
     ctx.fillStyle = C.ACCENT;
-    ctx.font = 'bold 28px SF Mono, Cascadia Code, monospace';
+    ctx.font = 'bold ' + timeFontSize + 'px SF Mono, Cascadia Code, monospace';
     ctx.textAlign = 'right';
-    ctx.fillText(minsToTime(r.total_time), W - padX - 10, y + rowH / 2 + 4);
+    ctx.fillText(minsToTime(r.total_time), W - padX - 10, cy + Math.round(timeFontSize * 0.35));
   });
+
+  // Total participants count
+  if (filtered && filtered.length) {
+    const countY = startY + 10 * rowH + 15;
+    ctx.fillStyle = C.TEXT2;
+    ctx.font = '20px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(filtered.length.toLocaleString() + ' partecipanti totali', W / 2, countY);
+  }
 
   const footerExtra = [data.div, data.gen].filter(Boolean).join(' | ');
   drawFooter(footerExtra);
@@ -1809,6 +2128,358 @@ function drawAthleteGraphic(ctx, W, H, data, drawHeader, drawFooter, roundRect, 
   }
 
   drawFooter('');
+}
+
+// -- Distribuzione Graphic --
+function drawDistribuzioneGraphic(ctx, W, H, data, drawHeader, drawFooter, roundRect, C) {
+  const { event, times, n, avg, median, stddev, p10, p25, p75, p90, subtitle } = data;
+  const isStory = H === 1920;
+  drawHeader('DISTRIBUZIONE TEMPI - ' + event.location.toUpperCase() + ' ' + event.year);
+
+  ctx.fillStyle = C.TEXT2;
+  ctx.font = '24px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(subtitle || 'Tutte le divisioni', W / 2, 200);
+
+  const padX = 60;
+  let y = 240;
+
+  // Stats cards (2 rows x 3)
+  const stats = [
+    { label: 'PARTECIPANTI', value: n.toLocaleString() },
+    { label: 'PIU VELOCE', value: minsToTime(times[0]) },
+    { label: 'PIU LENTO', value: minsToTime(times[n - 1]) },
+    { label: 'MEDIA', value: minsToTime(avg) },
+    { label: 'MEDIANA', value: minsToTime(median) },
+    { label: 'DEV. STD', value: minsToTime(stddev) },
+  ];
+  const cols = 3, boxW = (W - 2 * padX - 30) / cols, boxH = isStory ? 110 : 85;
+  stats.forEach((s, i) => {
+    const col = i % cols, row = Math.floor(i / cols);
+    const bx = padX + col * (boxW + 15), by = y + row * (boxH + 15);
+    ctx.fillStyle = C.SURFACE; roundRect(bx, by, boxW, boxH, 10); ctx.fill();
+    ctx.fillStyle = C.TEXT2; ctx.font = '15px Inter, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(s.label, bx + boxW / 2, by + 28);
+    ctx.fillStyle = C.ACCENT; ctx.font = 'bold 28px JetBrains Mono, monospace';
+    ctx.fillText(s.value, bx + boxW / 2, by + boxH - 18);
+  });
+  y += 2 * (boxH + 15) + 30;
+
+  // Histogram
+  const histH = isStory ? 500 : 280;
+  const histW = W - 2 * padX;
+  const sorted = [...times].sort((a, b) => a - b);
+  const minV = sorted[0], maxV = sorted[sorted.length - 1], range = maxV - minV || 1;
+  const numBins = Math.min(40, Math.max(15, Math.floor(n / 10)));
+  const binWidth = range / numBins;
+  const bins = new Array(numBins).fill(0);
+  times.forEach(v => { let idx = Math.floor((v - minV) / binWidth); if (idx >= numBins) idx = numBins - 1; bins[idx]++; });
+  const maxBin = Math.max(...bins);
+
+  const barW = histW / numBins;
+  bins.forEach((count, i) => {
+    const barH = maxBin > 0 ? (count / maxBin) * (histH - 40) : 0;
+    const x = padX + i * barW;
+    const by2 = y + histH - 20 - barH;
+    const binCenter = minV + (i + 0.5) * binWidth;
+
+    // Gradient color based on position
+    if (binCenter <= p25) ctx.fillStyle = 'rgba(0,214,143,0.6)';
+    else if (binCenter <= median) ctx.fillStyle = 'rgba(0,214,143,0.35)';
+    else if (binCenter <= p75) ctx.fillStyle = 'rgba(200,255,0,0.3)';
+    else ctx.fillStyle = 'rgba(255,107,107,0.35)';
+
+    roundRect(x + 1, by2, barW - 2, barH, 2); ctx.fill();
+  });
+
+  // Percentile lines
+  const drawPLine = (val, label, color) => {
+    const px = padX + ((val - minV) / range) * histW;
+    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+    ctx.beginPath(); ctx.moveTo(px, y); ctx.lineTo(px, y + histH - 20); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = color; ctx.font = 'bold 13px Inter, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(label, px, y - 4);
+    ctx.font = '12px JetBrains Mono, monospace';
+    ctx.fillText(minsToTime(val), px, y + histH - 4);
+  };
+  drawPLine(p10, 'Top 10%', C.GREEN);
+  drawPLine(median, 'Mediana', C.ACCENT);
+  drawPLine(p90, 'Bottom 10%', C.RED);
+
+  // X axis label
+  y += histH + 20;
+  ctx.fillStyle = C.TEXT2; ctx.font = '16px Inter, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('Tempo totale (hh:mm)', W / 2, y);
+
+  drawFooter([data.div, data.gen].filter(Boolean).join(' | '));
+}
+
+// -- Stazioni Graphic --
+function drawStazioniGraphic(ctx, W, H, data, drawHeader, drawFooter, roundRect, C) {
+  const { event, sorted, slowest, fastest, totalAvg, subtitle } = data;
+  const isStory = H === 1920;
+  drawHeader('CONFRONTO STAZIONI - ' + event.location.toUpperCase() + ' ' + event.year);
+
+  ctx.fillStyle = C.TEXT2; ctx.font = '24px Inter, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText(subtitle || 'Tutte le divisioni', W / 2, 200);
+
+  const padX = 60;
+  let y = 250;
+
+  // Bar chart
+  const maxVal = sorted[0].avg;
+  const barMaxW = W - 2 * padX - 200;
+  const barH = isStory ? 70 : 52;
+  const barGap = isStory ? 18 : 12;
+
+  sorted.forEach(s => {
+    const barW = Math.max((s.avg / maxVal) * barMaxW, 30);
+    let barColor;
+    if (s === slowest) barColor = C.RED;
+    else if (s === fastest) barColor = C.GREEN;
+    else barColor = 'rgba(200,255,0,0.4)';
+
+    // Label
+    ctx.fillStyle = C.TEXT; ctx.font = 'bold 18px Inter, sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(s.name, padX, y + barH / 2 + 6);
+
+    // Bar with gradient
+    if (s === slowest || s === fastest) {
+      ctx.fillStyle = barColor;
+    } else {
+      const grad = ctx.createLinearGradient(padX + 160, 0, padX + 160 + barW, 0);
+      grad.addColorStop(0, 'rgba(200,255,0,0.5)'); grad.addColorStop(1, 'rgba(200,255,0,0.15)');
+      ctx.fillStyle = grad;
+    }
+    roundRect(padX + 160, y, barW, barH, 8); ctx.fill();
+
+    // Time + pct on bar
+    ctx.fillStyle = C.TEXT; ctx.font = 'bold 17px JetBrains Mono, monospace'; ctx.textAlign = 'left';
+    ctx.fillText(minsToTime(s.avg), padX + 170, y + barH / 2 - 2);
+    ctx.fillStyle = C.TEXT2; ctx.font = '14px Inter, sans-serif';
+    ctx.fillText(s.pct.toFixed(1) + '%', padX + 170, y + barH / 2 + 16);
+
+    y += barH + barGap;
+  });
+
+  // Legend
+  y += 15;
+  ctx.font = '16px Inter, sans-serif'; ctx.textAlign = 'left';
+  ctx.fillStyle = C.RED; ctx.fillRect(padX, y, 16, 16); ctx.fillStyle = C.TEXT2; ctx.fillText('Piu lenta', padX + 24, y + 13);
+  ctx.fillStyle = C.GREEN; ctx.fillRect(padX + 140, y, 16, 16); ctx.fillStyle = C.TEXT2; ctx.fillText('Piu veloce', padX + 164, y + 13);
+
+  // Pie-style summary
+  y += 50;
+  ctx.fillStyle = C.TEXT; ctx.font = 'bold 20px Inter, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('DISTRIBUZIONE % TEMPO STAZIONI', W / 2, y);
+  y += 30;
+
+  // Stacked horizontal bar showing % breakdown
+  const totalBarW = W - 2 * padX;
+  let xOff = padX;
+  const colors = ['#00d68f', '#3dd9a4', '#7ae5c0', '#c8ff00', '#e8ff66', '#ffcc00', '#ff9966', '#ff6b6b'];
+  sorted.slice().reverse().forEach((s, i) => {
+    const segW = (s.pct / 100) * totalBarW;
+    ctx.fillStyle = colors[i % colors.length];
+    roundRect(xOff, y, segW - 1, 30, i === 0 ? 6 : i === sorted.length - 1 ? 6 : 0);
+    ctx.fill();
+    // Label on segment if wide enough
+    if (segW > 50) {
+      ctx.fillStyle = C.BG; ctx.font = 'bold 12px Inter, sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(s.pct.toFixed(0) + '%', xOff + segW / 2, y + 20);
+    }
+    xOff += segW;
+  });
+
+  // Legend below stacked bar
+  y += 50;
+  const legendCols = isStory ? 2 : 4;
+  const legendColW = (W - 2 * padX) / legendCols;
+  sorted.slice().reverse().forEach((s, i) => {
+    const col = i % legendCols, row = Math.floor(i / legendCols);
+    const lx = padX + col * legendColW, ly = y + row * 25;
+    ctx.fillStyle = colors[i % colors.length]; ctx.fillRect(lx, ly, 12, 12);
+    ctx.fillStyle = C.TEXT2; ctx.font = '13px Inter, sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(s.name, lx + 18, ly + 11);
+  });
+
+  drawFooter([data.div, data.gen].filter(Boolean).join(' | '));
+}
+
+// -- Pacing Analysis Graphic --
+function drawPacingGraphic(ctx, W, H, data, drawHeader, drawFooter, roundRect, C) {
+  const { event, runAvgs, wallIdx, wallDelta, negSplitCount, posSplitCount, negSplitPct, totalSplitAthletes, subtitle } = data;
+  const isStory = H === 1920;
+  drawHeader('PACING ANALYSIS - ' + event.location.toUpperCase() + ' ' + event.year);
+
+  ctx.fillStyle = C.TEXT2; ctx.font = '24px Inter, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText(subtitle || 'Tutte le divisioni', W / 2, 200);
+
+  const padX = 60;
+  let y = 250;
+
+  // Run times bar chart
+  const maxRun = Math.max(...runAvgs.map(r => r.avg));
+  const minRun = Math.min(...runAvgs.map(r => r.avg));
+  const chartH = isStory ? 450 : 280;
+  const chartW = W - 2 * padX;
+  const barW = chartW / runAvgs.length - 10;
+  const chartBottom = y + chartH;
+  const scaleRange = maxRun - minRun * 0.85 || 1;
+
+  runAvgs.forEach((r, i) => {
+    const x = padX + i * (barW + 10) + 5;
+    const barH = ((r.avg - minRun * 0.85) / scaleRange) * (chartH - 60);
+    const by = chartBottom - barH;
+
+    // Bar color based on fade
+    let barColor;
+    if (i === wallIdx) barColor = C.RED;
+    else if (r.fade <= 0) barColor = C.GREEN;
+    else if (r.fade < 5) barColor = 'rgba(200,255,0,0.6)';
+    else barColor = 'rgba(255,165,0,0.5)';
+
+    ctx.fillStyle = barColor;
+    roundRect(x, by, barW, barH, 6); ctx.fill();
+
+    // Time label on top
+    ctx.fillStyle = C.TEXT; ctx.font = 'bold 15px JetBrains Mono, monospace'; ctx.textAlign = 'center';
+    ctx.fillText(minsToTime(r.avg), x + barW / 2, by - 22);
+
+    // Fade % below time
+    if (i > 0) {
+      ctx.fillStyle = r.fade > 0 ? C.RED : C.GREEN;
+      ctx.font = '13px JetBrains Mono, monospace';
+      ctx.fillText((r.fade > 0 ? '+' : '') + r.fade.toFixed(1) + '%', x + barW / 2, by - 6);
+    }
+
+    // Run label at bottom
+    ctx.fillStyle = C.TEXT2; ctx.font = 'bold 16px Inter, sans-serif';
+    ctx.fillText(r.name, x + barW / 2, chartBottom + 22);
+  });
+
+  // "The Wall" indicator
+  if (runAvgs.length > wallIdx) {
+    const wallX = padX + wallIdx * (barW + 10) + 5 + barW / 2;
+    ctx.fillStyle = C.RED; ctx.font = 'bold 14px Inter, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('THE WALL', wallX, chartBottom + 42);
+  }
+
+  y = chartBottom + 65;
+
+  // Stats cards
+  const cardData = [
+    { label: 'THE WALL', value: runAvgs[wallIdx].name, sub: '+' + minsToTime(wallDelta) + ' vs precedente' },
+    { label: 'FADE TOTALE', value: '+' + runAvgs[runAvgs.length - 1].fade.toFixed(1) + '%', sub: 'da Run 1 a Run 8' },
+    { label: 'NEGATIVE SPLIT', value: negSplitPct.toFixed(0) + '%', sub: negSplitCount + '/' + totalSplitAthletes + ' atleti' },
+  ];
+  const cardW = (W - 2 * padX - 30) / 3, cardH = isStory ? 120 : 90;
+  cardData.forEach((c, i) => {
+    const cx = padX + i * (cardW + 15);
+    ctx.fillStyle = C.SURFACE; roundRect(cx, y, cardW, cardH, 10); ctx.fill();
+    ctx.fillStyle = C.TEXT2; ctx.font = '13px Inter, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(c.label, cx + cardW / 2, y + 22);
+    ctx.fillStyle = i === 0 ? C.RED : i === 1 ? '#ffa500' : C.GREEN;
+    ctx.font = 'bold 26px JetBrains Mono, monospace';
+    ctx.fillText(c.value, cx + cardW / 2, y + cardH / 2 + 8);
+    if (c.sub) { ctx.fillStyle = C.TEXT2; ctx.font = '12px Inter, sans-serif'; ctx.fillText(c.sub, cx + cardW / 2, y + cardH - 12); }
+  });
+
+  // Neg vs Pos split donut
+  if (isStory && totalSplitAthletes > 0) {
+    y += cardH + 50;
+    const centerX = W / 2, centerY = y + 80, radius = 70, thick = 25;
+    const negAngle = (negSplitPct / 100) * Math.PI * 2;
+
+    // Positive (red)
+    ctx.beginPath(); ctx.arc(centerX, centerY, radius, negAngle - Math.PI / 2, 1.5 * Math.PI);
+    ctx.arc(centerX, centerY, radius - thick, 1.5 * Math.PI, negAngle - Math.PI / 2, true);
+    ctx.closePath(); ctx.fillStyle = 'rgba(255,107,107,0.6)'; ctx.fill();
+
+    // Negative (green)
+    ctx.beginPath(); ctx.arc(centerX, centerY, radius, -Math.PI / 2, negAngle - Math.PI / 2);
+    ctx.arc(centerX, centerY, radius - thick, negAngle - Math.PI / 2, -Math.PI / 2, true);
+    ctx.closePath(); ctx.fillStyle = 'rgba(0,214,143,0.7)'; ctx.fill();
+
+    // Labels
+    ctx.fillStyle = C.TEXT; ctx.font = 'bold 18px Inter, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Negative Split', centerX - 130, centerY + 5);
+    ctx.fillText('Positive Split', centerX + 130, centerY + 5);
+    ctx.fillStyle = C.GREEN; ctx.font = 'bold 22px JetBrains Mono, monospace';
+    ctx.fillText(negSplitPct.toFixed(0) + '%', centerX - 130, centerY + 30);
+    ctx.fillStyle = C.RED;
+    ctx.fillText((100 - negSplitPct).toFixed(0) + '%', centerX + 130, centerY + 30);
+  }
+
+  drawFooter([data.div, data.gen].filter(Boolean).join(' | '));
+}
+
+// -- Nazionalita Graphic --
+function drawNazionalitaGraphic(ctx, W, H, data, drawHeader, drawFooter, roundRect, C) {
+  const { event, top10, fastestNat, filtered, subtitle } = data;
+  const isStory = H === 1920;
+  drawHeader('NAZIONALITA - ' + event.location.toUpperCase() + ' ' + event.year);
+
+  ctx.fillStyle = C.TEXT2; ctx.font = '24px Inter, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText(subtitle || 'Tutte le divisioni', W / 2, 200);
+
+  const padX = 60;
+  let y = 250;
+  const maxCount = top10.length ? top10[0].count : 1;
+  const barMaxW = W - 2 * padX - 220;
+  const barH = isStory ? 70 : 52;
+  const barGap = isStory ? 16 : 10;
+
+  // Section title
+  ctx.fillStyle = C.TEXT; ctx.font = 'bold 20px Inter, sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText('TOP 10 NAZIONALITA PER PARTECIPANTI', padX, y); y += 35;
+
+  top10.forEach((n, i) => {
+    const barW = Math.max((n.count / maxCount) * barMaxW, 30);
+    const pct = (n.count / filtered.length * 100).toFixed(1);
+
+    // Bar
+    const grad = ctx.createLinearGradient(padX + 80, 0, padX + 80 + barW, 0);
+    if (i === 0) { grad.addColorStop(0, C.ACCENT); grad.addColorStop(1, 'rgba(200,255,0,0.3)'); }
+    else if (i < 3) { grad.addColorStop(0, 'rgba(200,255,0,0.5)'); grad.addColorStop(1, 'rgba(200,255,0,0.15)'); }
+    else { grad.addColorStop(0, 'rgba(139,143,163,0.4)'); grad.addColorStop(1, 'rgba(139,143,163,0.1)'); }
+    ctx.fillStyle = grad;
+    roundRect(padX + 80, y, barW, barH, 8); ctx.fill();
+
+    // Rank + flag code
+    ctx.fillStyle = i === 0 ? C.ACCENT : C.TEXT;
+    ctx.font = 'bold 20px Inter, sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(n.nat, padX, y + barH / 2 + 7);
+
+    // Count + pct on bar
+    ctx.fillStyle = C.TEXT; ctx.font = 'bold 16px JetBrains Mono, monospace'; ctx.textAlign = 'left';
+    ctx.fillText(n.count + ' atleti', padX + 90, y + barH / 2 - 1);
+    ctx.fillStyle = C.TEXT2; ctx.font = '13px Inter, sans-serif';
+    ctx.fillText(pct + '%', padX + 90, y + barH / 2 + 16);
+
+    // Avg time on right
+    if (n.avgTime) {
+      ctx.fillStyle = C.ACCENT; ctx.font = '15px JetBrains Mono, monospace'; ctx.textAlign = 'right';
+      ctx.fillText(minsToTime(n.avgTime), W - padX, y + barH / 2 + 6);
+    }
+
+    y += barH + barGap;
+  });
+
+  // Fastest nationality card
+  if (fastestNat) {
+    y += 20;
+    ctx.fillStyle = C.SURFACE;
+    roundRect(padX, y, W - 2 * padX, isStory ? 100 : 80, 12); ctx.fill();
+
+    ctx.fillStyle = C.TEXT2; ctx.font = '15px Inter, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('NAZIONALITA PIU VELOCE (min. 3 atleti)', W / 2, y + 25);
+    ctx.fillStyle = C.GREEN; ctx.font = 'bold 30px JetBrains Mono, monospace';
+    ctx.fillText(fastestNat.nat + '  ' + minsToTime(fastestNat.avgTime), W / 2, y + (isStory ? 68 : 58));
+  }
+
+  drawFooter([data.div, data.gen].filter(Boolean).join(' | '));
 }
 
 function downloadPNG() {
@@ -2026,7 +2697,7 @@ function switchCrossDiv(div) {
   const { name, byDiv } = window._crossData;
   const races = byDiv[div];
 
-  // Sort races by date (season, then year)
+  // Sort races by date (oldest first — needed for progression charts)
   const sorted = [...races].sort((a, b) => {
     const sa = a.event.season, sb = b.event.season;
     if (sa !== sb) return sa - sb;
