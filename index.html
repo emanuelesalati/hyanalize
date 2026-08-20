@@ -1782,25 +1782,32 @@ async function crossSearch() {
   const mainName = Object.entries(nameCounts).sort((a,b) => b[1] - a[1])[0][0];
   const displayName = formatName(mainName);
 
-  // Group by division
+  // Group by division + gender (e.g. "doubles_mixed", "doubles_male", "open_male")
   const byDiv = {};
   allRaces.forEach(r => {
     const div = r.division || 'unknown';
-    if (!byDiv[div]) byDiv[div] = [];
-    byDiv[div].push(r);
+    const gen = r.gender || 'unknown';
+    const key = div + '_' + gen;
+    if (!byDiv[key]) byDiv[key] = [];
+    byDiv[key].push(r);
   });
 
   const divKeys = Object.keys(byDiv).sort((a, b) => byDiv[b].length - byDiv[a].length);
-  const divLabels = { open: 'Open (Singles)', doubles: 'Doubles', pro: 'Pro', pro_doubles: 'Pro Doubles' };
+  const divGenderLabels = {
+    open_male: 'Open Men', open_female: 'Open Women',
+    doubles_male: 'Doubles Men', doubles_female: 'Doubles Women', doubles_mixed: 'Doubles Mixed',
+    pro_male: 'Pro Men', pro_female: 'Pro Women',
+    pro_doubles_male: 'Pro Doubles Men', pro_doubles_female: 'Pro Doubles Women', pro_doubles_mixed: 'Pro Doubles Mixed',
+  };
 
   // Store data globally for division switching
-  window._crossData = { name: displayName, byDiv, divKeys, divLabels };
+  window._crossData = { name: displayName, byDiv, divKeys, divLabels: divGenderLabels };
 
   // Show division selector + first division analysis
   let selectorHtml = '<div style="margin-bottom:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center">';
-  selectorHtml += '<span style="color:var(--text2);font-size:0.85rem">Divisione:</span>';
+  selectorHtml += '<span style="color:var(--text2);font-size:0.85rem">Categoria:</span>';
   divKeys.forEach((d, i) => {
-    const label = divLabels[d] || d;
+    const label = divGenderLabels[d] || d;
     const count = byDiv[d].length;
     const cls = i === 0 ? 'tab active' : 'tab';
     selectorHtml += '<div class="' + cls + '" data-cross-div="' + d + '" onclick="switchCrossDiv(\'' + d + '\')" style="font-size:0.82rem;padding:0.4rem 0.8rem">' + label + ' (' + count + ')</div>';
@@ -1852,10 +1859,12 @@ function renderCrossAnalysis(name, races, divFilter) {
     ? firstRace.total_time - latestRace.total_time : null;
 
   // Global percentile: count across ALL cached races for same division+gender
-  let globalRank = null, globalTotal = 0;
-  const refDiv = divFilter || bestRace?.division;
-  const refGen = bestRace?.gender;
+  // divFilter is now "division_gender" (e.g. "doubles_mixed"), split it
+  const filterParts = (divFilter || '').split('_');
+  const refDiv = filterParts.length >= 2 ? filterParts.slice(0, -1).join('_') : (bestRace?.division);
+  const refGen = filterParts.length >= 2 ? filterParts[filterParts.length - 1] : (bestRace?.gender);
   const bestTime = bestRace?.total_time;
+  let globalRank = null, globalTotal = 0;
   if (refDiv && refGen && bestTime) {
     const allTimes = [];
     for (const key of Object.keys(raceCache)) {
@@ -1869,8 +1878,13 @@ function renderCrossAnalysis(name, races, divFilter) {
     globalRank = allTimes.filter(t => t < bestTime).length + 1;
   }
 
-  const divLabels = { open: 'Open (Singles)', doubles: 'Doubles', pro: 'Pro', pro_doubles: 'Pro Doubles' };
-  const divLabel = divLabels[refDiv] || refDiv || '';
+  const divGenderLabels = {
+    open_male: 'Open Men', open_female: 'Open Women',
+    doubles_male: 'Doubles Men', doubles_female: 'Doubles Women', doubles_mixed: 'Doubles Mixed',
+    pro_male: 'Pro Men', pro_female: 'Pro Women',
+    pro_doubles_male: 'Pro Doubles Men', pro_doubles_female: 'Pro Doubles Women', pro_doubles_mixed: 'Pro Doubles Mixed',
+  };
+  const divLabel = divGenderLabels[divFilter] || divFilter || '';
   let html = '<h2 style="color:var(--accent);margin-bottom:1rem;font-size:1.3rem">' + name + ' — ' + divLabel + '</h2>';
 
   html += '<div class="cross-summary">';
