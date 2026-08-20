@@ -509,8 +509,12 @@ async function loadRace(key) {
 }
 
 // -- Results filters --
+function sortedEventsNewestFirst() {
+  return [...DATA.events].sort((a, b) => (b.season || 0) - (a.season || 0) || (b.year || 0) - (a.year || 0) || a.location.localeCompare(b.location));
+}
+
 function renderResultsFilters() {
-  const events = DATA.events.sort((a, b) => a.name.localeCompare(b.name));
+  const events = sortedEventsNewestFirst();
   document.getElementById('results-filters').innerHTML = `
     <label>Evento</label>
     <select id="filter-event-select" onchange="loadRace(this.value)" style="min-width:250px">
@@ -647,13 +651,28 @@ function renderResultsTable() {
 
 // -- Stats --
 function renderStatsFilters() {
-  const events = DATA.events.filter(e => e.stats && Object.keys(e.stats).length > 0).sort((a,b) => a.name.localeCompare(b.name));
+  const events = sortedEventsNewestFirst().filter(e => e.stats && Object.keys(e.stats).length > 0);
   if (!events.length) { document.getElementById('stats-filters').innerHTML = '<span style="color:var(--text2)">Nessuna statistica</span>'; return; }
 
   document.getElementById('stats-filters').innerHTML = `
     <label>Evento</label>
     <select id="filter-stats-event" onchange="renderStats()" style="min-width:250px">
       ${events.map(e => `<option value="${e.key}">${e.name} (${e.location} ${e.year})</option>`).join('')}
+    </select>
+    <label>Divisione</label>
+    <select id="filter-stats-div" onchange="renderStats()">
+      <option value="">Tutte</option>
+      <option value="open">Open</option>
+      <option value="doubles">Doubles</option>
+      <option value="pro">Pro</option>
+      <option value="pro_doubles">Pro Doubles</option>
+    </select>
+    <label>Genere</label>
+    <select id="filter-stats-gen" onchange="renderStats()">
+      <option value="">Tutti</option>
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+      <option value="mixed">Mixed</option>
     </select>
   `;
   renderStats();
@@ -665,7 +684,16 @@ function renderStats() {
   const event = DATA.events.find(e => e.key === key);
   if (!event || !event.stats) { grid.innerHTML = ''; return; }
 
-  grid.innerHTML = Object.values(event.stats).sort((a,b) => `${a.division}_${a.gender}`.localeCompare(`${b.division}_${b.gender}`)).map(s => `
+  const filterDiv = document.getElementById('filter-stats-div')?.value || '';
+  const filterGen = document.getElementById('filter-stats-gen')?.value || '';
+
+  const filtered = Object.values(event.stats)
+    .filter(s => (!filterDiv || s.division === filterDiv) && (!filterGen || s.gender === filterGen))
+    .sort((a,b) => `${a.division}_${a.gender}`.localeCompare(`${b.division}_${b.gender}`));
+
+  if (!filtered.length) { grid.innerHTML = '<div class="loading-msg">Nessuna statistica per i filtri selezionati</div>'; return; }
+
+  grid.innerHTML = filtered.map(s => `
     <div class="stat-card">
       <h3>${s.division} — ${s.gender} (${s.count} atleti)</h3>
       <div class="stat-row"><span class="sl">Miglior tempo</span><span class="time">${minsToTime(s.min)}</span></div>
@@ -695,7 +723,7 @@ document.getElementById('content-type-btns').addEventListener('click', e => {
 });
 
 function renderContentFilters() {
-  const events = DATA.events.sort((a, b) => a.name.localeCompare(b.name));
+  const events = sortedEventsNewestFirst();
   const area = document.getElementById('content-area');
   area.innerHTML = '';
 
