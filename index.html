@@ -294,7 +294,7 @@ function renderEvents() {
   const q = (document.getElementById('filter-event')?.value || '').toLowerCase();
   let events = DATA.events;
   if (q) events = events.filter(e => [e.name, e.location, String(e.year), String(e.season), e.divisions?.join(' ')].join(' ').toLowerCase().includes(q));
-  events = [...events].sort((a, b) => (b.results_count || 0) - (a.results_count || 0));
+  events = [...events].sort((a, b) => (b.season || 0) - (a.season || 0) || (b.year || 0) - (a.year || 0) || a.location.localeCompare(b.location));
 
   grid.innerHTML = events.length ? events.map(e => `
     <div class="event-card" onclick="loadRace('${e.key}')">
